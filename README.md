@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 AWARDS
 
 Namjena: Mogucnost rangiranja vina. Jasno davanje informacija korisnicima.
