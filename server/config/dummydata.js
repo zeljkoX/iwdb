@@ -52,7 +52,7 @@ User.find({}).remove(function() {
 
 Wine.find({}).remove(function() {
     Wine.create({
-        name: 'wine'
+        name: 'wine ddfgf ääääää fdgdfg'
     }, {
         name: 'wine1'
     }, function() {

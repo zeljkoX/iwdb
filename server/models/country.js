@@ -1,6 +1,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     subschema = require('./subschemes.js'),
+    urlifyPlugin = require('./plugins.js').urlify,
     autoIncrement = require('mongoose-auto-increment');
 
 
@@ -38,5 +39,5 @@ CountrySchema.statics.searchByName = function(name, cb) {
         name: name
     }, cb);
 };
-
+CountrySchema.plugin(urlifyPlugin);
 module.exports = mongoose.model('Country', CountrySchema, 'countries');

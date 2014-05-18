@@ -1,6 +1,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     autoIncrement = require('mongoose-auto-increment'),
+    urlifyPlugin = require('./plugins.js').urlify,
     subschema = require('./subschemes.js');
 
 var GrapeSchema = new Schema({
@@ -31,5 +32,5 @@ GrapeSchema.statics.searchByName = function(name, cb) {
         name: name
     }, cb);
 };
-
+GrapeSchema.plugin(urlifyPlugin);
 module.exports = mongoose.model('Grape', GrapeSchema, 'grape');

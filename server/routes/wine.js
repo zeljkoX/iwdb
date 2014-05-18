@@ -3,8 +3,7 @@ var router = express.Router();
 var wine = require('../controllers/wine.js');
 
 router.route('/')
-    .get(wine.index)
-    .post(wine.indexPost);
+    .get(wine.listing);
 
 router.route('/:id')
     .get()

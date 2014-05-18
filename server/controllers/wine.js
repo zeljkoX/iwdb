@@ -1,22 +1,31 @@
 var mongoose = require('mongoose');
+var Wine = mongoose.model('Wine');
+var pagination = require('../helperMethods.js').pagination;
+var filter = require('../helperMethods.js').filter;
 /**
- *
+ * List all wines in db
  */
-exports.index = function(req, res) {
-    res.send('<p>Success</p>');
+exports.listing = function(req, res) {
+    var page = pagination(req);
+    var query = filter(req, 'country');
+    Wine.find(query).limit(page.size).skip(page.start).lean().exec(function(err, result) {
+        res.send(result);
+    });
+
+
 };
 
 /**
  *
  */
-exports.indexPost = function(req, res) {
+exports.userAddWine = function(req, res) {
     res.end(200);
 };
 
 /**
  *
  */
-exports.update = function(req, res) {
+exports.show = function(req, res) {
 
 };
 

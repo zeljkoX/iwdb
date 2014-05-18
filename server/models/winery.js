@@ -1,6 +1,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     autoIncrement = require('mongoose-auto-increment'),
+    urlifyPlugin = require('./plugins.js').urlify,
     subschema = require('./subschemes.js');
 
 
@@ -8,7 +9,9 @@ var WinerySchema = new Schema({
     name: {
         type: String,
         required: true,
-        index: true
+        index: true,
+        max: 50,
+        min: 5
     },
     url: {
         type: String //Calculated based on name field
@@ -79,4 +82,5 @@ WinerySchema.plugin(autoIncrement.plugin, {
     incrementBy: 1,
     prepend: 7
 });
+WinerySchema.plugin(urlifyPlugin);
 module.exports = mongoose.model('Winery', WinerySchema, 'winery');

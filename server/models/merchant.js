@@ -1,13 +1,16 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     autoIncrement = require('mongoose-auto-increment'),
+    urlifyPlugin = require('./plugins.js').urlify,
     subschema = require('./subschemes.js');
 
 var MerchantSchema = new Schema({
     name: {
         type: String,
         required: true,
-        index: true
+        index: true,
+        max: 50,
+        min: 5
     },
     url: {
         type: String //Calculated based on name field
@@ -65,4 +68,5 @@ var MerchantSchema = new Schema({
     numberOfUpdates: {} //Maybe??
 });
 MerchantSchema.plugin(autoIncrement.plugin, 'Merchant');
+MerchantSchema.plugin(urlifyPlugin);
 module.exports = mongoose.model('Merchant', MerchantSchema, 'merchant');

@@ -1,13 +1,16 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     autoIncrement = require('mongoose-auto-increment'),
+    urlifyPlugin = require('./plugins.js').urlify,
     subschema = require('./subschemes.js');
 
 var AwardSchema = new Schema({
     name: {
         type: String,
         required: true,
-        index: true
+        index: true,
+        max: 50,
+        min: 3
     },
     url: {
         type: String //Calculated based on name field
@@ -62,4 +65,5 @@ AwardSchema.plugin(autoIncrement.plugin, {
     model: 'Award',
     prepend: 7
 });
+AwardSchema.plugin(urlifyPlugin);
 module.exports = mongoose.model('Award', AwardSchema, 'awards');
