@@ -27,6 +27,7 @@ var GrapeSchema = new Schema({
     kalem: [subschema.ShortGrapeSchema],
     stat: {} //statistic   perhaps number of wineris with this grape
 });
+
 GrapeSchema.statics.searchByName = function(name, cb) {
     this.find({
         name: name

@@ -48,7 +48,8 @@ var MerchantSchema = new Schema({
         type: String
     }, //terms of order
     wines: [subschema.MerchantWineSchema],
-    rating: {},
+    reviews: [subschema.ReviewSchema],
+    rating: [subschema.RatingSchema],
     www: {
         type: String
     },
@@ -65,8 +66,14 @@ var MerchantSchema = new Schema({
     onlineOrdering: {
         type: Boolean
     },
-    numberOfUpdates: {} //Maybe??
+    stat: {} //numberOfupdates Maybe??
 });
+
+virtual = MerchantSchema.virtual('idurl');
+virtual.get(function() {
+    return this._id + '/' + this.url;
+});
+
 MerchantSchema.plugin(autoIncrement.plugin, 'Merchant');
 MerchantSchema.plugin(urlifyPlugin);
 module.exports = mongoose.model('Merchant', MerchantSchema, 'merchant');

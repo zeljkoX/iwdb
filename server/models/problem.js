@@ -1,25 +1,21 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-var EditSchema = new Schema({
-    user: {
-        type: String,
-        required: true
-    },
+var ProblemSchema = new Schema({
+    user: {}, //    user id and name
     explanation: {
         type: String
     },
-    category: {
+    page: {
         type: String
     },
     date: {
         type: Date
     },
-    changes: {},
-    viewed: { //json object of changes
+    viewed: { //viwed by admin
         type: Boolean,
         default: false
     }
 });
 
-module.exports = mongoose.model('Edit', EditSchema, 'edit');
+module.exports = mongoose.model('Problem', ProblemSchema, 'problem');

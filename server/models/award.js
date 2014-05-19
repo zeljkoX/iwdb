@@ -27,15 +27,18 @@ var AwardSchema = new Schema({
         type: String
     },
     region: [subschema.locationSchema], //fields: [{name, id}]
-    profil: {
+    profilPicture: {
         type: String
     },
-    picture: {
-        type: String
-    },
+    pictures: [subschema.PictureSchema],
     rss: {
         type: String
     }
+});
+
+virtual = AwardSchema.virtual('idurl');
+virtual.get(function() {
+    return this._id + '/' + this.url;
 });
 
 AwardSchema.statics.searchByName = function(name, cb) {

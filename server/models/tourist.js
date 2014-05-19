@@ -39,8 +39,8 @@ var TouristSchema = new Schema({
         type: String
     },
     map: {},
-    review: [],
-    rating: {}, //score. number of votes
+    reviews: [subschema.ReviewSchema],
+    rating: [subschema.RatingSchema], //score. number of votes
     article: {
         type: String
     },
@@ -51,6 +51,11 @@ var TouristSchema = new Schema({
         type: Date
     }
 
+});
+
+virtual = TouristSchema.virtual('idurl');
+virtual.get(function() {
+    return this._id + '/' + this.url;
 });
 
 TouristSchema.statics.searchByCountry = function(name, cb) {

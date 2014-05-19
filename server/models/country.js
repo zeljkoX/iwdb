@@ -34,6 +34,8 @@ var CountrySchema = new Schema({
     media: [subschema.MediaSchema],
     wineries: [subschema.ShortWinerySchema] // how to implement, where to store grapes???
 });
+
+
 CountrySchema.statics.searchByName = function(name, cb) {
     this.find({
         name: name

@@ -36,8 +36,7 @@ var WinerySchema = new Schema({
     media: [subschema.MediaSchema],
     selling: {
         type: String
-    }, //?
-    recenzion: [], //to implement
+    },
     literPerYear: {
         type: Number
     },
@@ -57,12 +56,38 @@ var WinerySchema = new Schema({
     pictures: [subschema.PictureSchema],
     awards: [subschema.AwardPerWineSchema],
     wineriesLocations: [subschema.LocationSchema], //definition of wineyards   WineriesLocationSchema
+    reviews: [subschema.ReviewSchema],
+    topReview: {
+        type: String
+    },
     rss: {
         type: String
     },
     map: {},
-    news: [] //news related to this document TO DO
+    news: [], //news related to this document TO DO
+    lastModified: {
+        type: Date
+    }
 });
+
+/**
+ *  Transform function used to transform document for public use
+ */
+if (!WinerySchema.options.toObject) WinerySchema.options.toObject = {};
+WinerySchema.options.toObject.transform = function(doc, ret, options) {
+    delete ret._id;
+    delete ret.publish;
+    delete reviews;
+    delete news;
+
+}
+
+
+virtual = WinerySchema.virtual('idurl');
+virtual.get(function() {
+    return this._id + '/' + this.url;
+});
+
 WinerySchema.statics.searchByCountry = function(name, cb) {
     this.find({
         name: name //country.name
@@ -82,5 +107,7 @@ WinerySchema.plugin(autoIncrement.plugin, {
     incrementBy: 1,
     prepend: 7
 });
+
 WinerySchema.plugin(urlifyPlugin);
+
 module.exports = mongoose.model('Winery', WinerySchema, 'winery');

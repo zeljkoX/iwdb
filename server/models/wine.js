@@ -99,8 +99,16 @@ var WineSchema = new Schema({
         type: String
     },
     merchants: [subschema.ShortMerchantSchema],
-    news: [] //news related to this document TO DO
+    news: [], //news related to this document TO DO
+    reviews: [subschema.ReviewSchema],
+    rating: [subschema.RatingSchema]
 });
+
+virtual = WineSchema.virtual('idurl');
+virtual.get(function() {
+    return this._id + '/' + this.url;
+});
+
 WineSchema.statics.searchByWinery = function(name, cb) {
     this.find({
         name: name // winery.name

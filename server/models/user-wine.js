@@ -18,8 +18,8 @@ var UserSchema = new Schema({
     id: {
         type: String
     },
-    reviews: [],
-    ratings: [],
+    reviews: [subschema.UserReviewSchema],
+    rating: [subschema.UserRatingSchema],
     favourites: [subschema.ShortWineSchema], //user favourite wines     ShortWineSchema
     banned: {
         type: Boolean

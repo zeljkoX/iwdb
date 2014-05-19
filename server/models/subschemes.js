@@ -224,3 +224,111 @@ exports.LocationSchema = new Schema({
         type: String //TODO Object ID
     }
 });
+
+exports.ReviewSchema = new Schema({
+    user: {}, //id, name, location
+    date: {
+        type: Date
+    },
+    plus: {
+        type: Number
+    },
+    minus: {
+        type: Number
+    },
+    rating: {
+        type: Number //Rating od strane korisnika koji je napisao recenziju
+    }
+});
+
+exports.RatingSchema = new Schema({
+    1: {
+        type: Number,
+        min: 1,
+        max: 10
+    },
+    2: {
+        type: Number,
+        min: 1,
+        max: 10
+    },
+    4: {
+        type: Number,
+        min: 1,
+        max: 10
+    },
+    5: {
+        type: Number,
+        min: 1,
+        max: 10
+    },
+    6: {
+        type: Number,
+        min: 1,
+        max: 10
+    },
+    7: {
+        type: Number,
+        min: 1,
+        max: 10
+    },
+    8: {
+        type: Number,
+        min: 1,
+        max: 10
+    },
+    9: {
+        type: Number
+    },
+    10: {
+        type: Number,
+        min: 1,
+        max: 10
+    },
+    all: {
+        type: Number, //Ukupan broj ocjena
+        min: 1,
+        max: 10
+    },
+    rate: {
+        type: Number,
+        min: 0,
+        max: 10
+    }
+});
+
+exports.UserReviewSchema = new Schema({
+    pageId: {
+        type: String
+    },
+    date: {
+        type: Date
+    },
+    text: {
+        type: String
+    }
+});
+
+exports.UserRatingSchema = new Schema({
+    pageId: {
+        type: String
+    },
+    date: {
+        type: Date
+    },
+    rate: {
+        type: Number,
+        min: 1,
+        max: 10
+    }
+});
+
+exports.PictureSchema = new Schema({
+    name: {},
+    url: {
+        type: String
+    },
+    desc: {
+        type: String
+    }
+});

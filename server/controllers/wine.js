@@ -1,7 +1,9 @@
-var mongoose = require('mongoose');
-var Wine = mongoose.model('Wine');
-var pagination = require('../helperMethods.js').pagination;
-var filter = require('../helperMethods.js').filter;
+var mongoose = require('mongoose'),
+    Wine = mongoose.model('Wine'),
+    pagination = require('../helperMethods.js').pagination,
+    filter = require('../helperMethods.js').filter,
+    events = require('events'),
+    event = new events.EventEmitter();
 /**
  * List all wines in db
  */
@@ -18,20 +20,51 @@ exports.listing = function(req, res) {
 /**
  *
  */
-exports.userAddWine = function(req, res) {
-    res.end(200);
+exports.add = function(req, res) {
+    var wine = new Wine(req.body);
+    wine.save(function(err, doc) {
+        if (err) {
+            return res.json(400, err);
+        }
+        event.emit('wine:add', doc);
+        return res.json(doc);
+    });
 };
 
 /**
  *
  */
 exports.show = function(req, res) {
-
+    Wine.findById(req.id, '-published ', function(err, doc) {
+        if (!err) {
+            return res.json(doc);
+        } else {
+            event.emit('winery:show', doc);
+            return res.send(err);
+        }
+    });
 };
 
+
 /**
- *
+ *  Admin specific controllers
  */
-exports.delete = function(req, res) {
+
+exports.adminShow = function(req, res) {
+
+};
+exports.adminWineChange = function(req, res) {
+
+};
+exports.adminWineDelete = function(req, res) {
+
+};
+exports.adminPublish = function(req, res) {
+
+};
+exports.adminProblem = function(req, res) {
+
+};
+exports.adminProblemDelete = function(req, res) {
 
 };
