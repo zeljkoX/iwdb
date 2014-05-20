@@ -238,6 +238,9 @@ exports.ReviewSchema = new Schema({
     },
     rating: {
         type: Number //Rating od strane korisnika koji je napisao recenziju
+    },
+    review: {
+        type: String
     }
 });
 

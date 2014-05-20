@@ -1,7 +1,6 @@
 var express = require('express'),
     router = express.Router(),
     winery = require('../../controllers/winery.js'),
-    review = require('../../controllers/review.js'),
     mongoose = require('mongoose'),
     Winery = mongoose.model('Winery');
 /**
@@ -31,7 +30,7 @@ router.route('/winery/:id/')
 
 router.route('/winery/:id/:name/edit/')
     .put(winery.edit);
-
+/*
 router.route('/winery/:id/:name/reviews/')
     .get(review.listing);
 
@@ -40,7 +39,7 @@ router.route('/winery/:id/:name/reviews/')
 
 router.route('/winery/:id/:name/reviews/:rid/')
     .post(review.rate);
-
+*/
 router.route('/winery/:id/:name/problem/')
     .post(winery.problem);
 

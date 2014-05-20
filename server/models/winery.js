@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     autoIncrement = require('mongoose-auto-increment'),
-    urlifyPlugin = require('./plugins.js').urlify,
+    plugin = require('./plugins.js'),
     subschema = require('./subschemes.js');
 
 
@@ -12,12 +12,6 @@ var WinerySchema = new Schema({
         index: true,
         max: 50,
         min: 5
-    },
-    url: {
-        type: String //Calculated based on name field
-    },
-    published: {
-        type: Boolean
     },
     established: {
         type: Number
@@ -56,17 +50,14 @@ var WinerySchema = new Schema({
     pictures: [subschema.PictureSchema],
     awards: [subschema.AwardPerWineSchema],
     wineriesLocations: [subschema.LocationSchema], //definition of wineyards   WineriesLocationSchema
-    reviews: [subschema.ReviewSchema],
-    topReview: {
-        type: String
-    },
     rss: {
         type: String
     },
     map: {},
     news: [], //news related to this document TO DO
     lastModified: {
-        type: Date
+        type: Date,
+        default: Date.now
     }
 });
 
@@ -108,6 +99,24 @@ WinerySchema.plugin(autoIncrement.plugin, {
     prepend: 7
 });
 
-WinerySchema.plugin(urlifyPlugin);
+/***************
+ *  PLUGINS
+ ***************/
+
+/**
+ * Add url field and write to it url based name
+ */
+WinerySchema.plugin(plugin.urlify);
+
+/**
+ * Add reviews and topReview fields.
+ */
+WinerySchema.plugin(plugin.review);
+
+/**
+ * Add publish field and method
+ */
+WinerySchema.plugin(plugin.publish);
+
 
 module.exports = mongoose.model('Winery', WinerySchema, 'winery');

@@ -158,12 +158,12 @@ exports.adminWineryDelete = function(req, res) {
  */
 exports.adminPublish = function(req, res) {
     var doc = req.doc;
-    doc.update({
-        publish: !doc.publish
-    }, function(err, doc) {
+    doc.publish(function(err) {
         if (err) {
-            return res.json(400, err);
+            return res.json(400, err)
         }
-        res.json(doc);
+        res.json(200);
+        event.emit('winery:publish', doc);
+        return;
     });
 };

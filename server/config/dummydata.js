@@ -33,7 +33,7 @@ Thing.find({}).remove(function() {
         info: 'An excellent document database. Combined with Mongoose to simplify adding validation and business logic.',
         awesomeness: 10
     }, function() {
-        console.log('finished populating things');
+        //console.log('finished populating things');
     });
 });
 
@@ -45,7 +45,7 @@ User.find({}).remove(function() {
         email: 'test@test.com',
         password: 'test'
     }, function() {
-        console.log('finished populating users');
+        //console.log('finished populating users');
     });
 });
 
@@ -56,7 +56,7 @@ Wine.find({}).remove(function() {
     }, {
         name: 'wine1'
     }, function() {
-        console.log('finished populating wines');
+        //console.log('finished populating wines');
     });
 });
 
@@ -66,6 +66,6 @@ Winery.find({}).remove(function() {
     }, {
         name: 'winery1'
     }, function() {
-        console.log('finished populating wines');
+        // console.log('finished populating wines');
     });
 });
