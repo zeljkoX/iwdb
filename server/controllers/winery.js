@@ -42,20 +42,9 @@ exports.search = function(req, res) {
  */
 exports.show = function(req, res) {
     res.json(req.doc.toObject());
+    req.doc.pageView();
     event.emit('winery:show', doc);
     return;
-
-
-    /*  Old implementation
-    Winery.findById(req.id, '-published ', function(err, doc) {
-        if (!err) {
-            return res.json(doc);
-        } else {
-            event.emit('winery:show', doc);
-            return res.send(err);
-        }
-    });
-    */
 };
 
 /**
@@ -158,12 +147,12 @@ exports.adminWineryDelete = function(req, res) {
  */
 exports.adminPublish = function(req, res) {
     var doc = req.doc;
-    doc.update({
-        publish: !doc.publish
-    }, function(err, doc) {
+    doc.publish(function(err) {
         if (err) {
-            return res.json(400, err);
+            return res.json(400, err)
         }
-        res.json(doc);
+        res.json(200);
+        event.emit('winery:publish', doc);
+        return;
     });
 };

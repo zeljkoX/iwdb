@@ -4,14 +4,13 @@ var mongoose = require('mongoose'),
 
 exports.add = function(req, res) {
     var doc = req.doc;
-    var review = req.body;
-    doc.reviews.push(review);
-    wine.save(function(err, doc) {
+    doc.reviewAdd(req.body, function(err) {
         if (err) {
-            return res.json(400, err);
+            return res.send(400, Error('Neuspjelo upisa recenzije'));
         }
+        res.send(200);
         event.emit('review:add', req.id, doc);
-        return res.json(doc);
+        return;
     });
 };
 
@@ -23,7 +22,6 @@ exports.rate = function(req, res) {
     var rid = req.params.rid;
     var doc = req.doc;
     var review = doc.reviews.id(rid);
-    var position = docs.reviews.indexOf(review);
     //update review
 };
 
@@ -36,9 +34,27 @@ exports.adminListing = function(req, res) {
 };
 
 exports.adminChange = function(req, res) {
-
+    var rid = req.params.rid;
+    var doc = req.doc;
+    doc.reviewChange(rid, req.body, function(err) {
+        if (err) {
+            return res.send(400, Error('Neuspjelo uredjivanje recenzije'));
+        }
+        res.send(200);
+        event.emit('review:change', req.id, doc);
+        return;
+    });
 };
 
 exports.adminDelete = function(req, res) {
-
+    var rid = req.params.rid;
+    var doc = req.doc;
+    doc.reviewDelete(rid, function(err) {
+        if (err) {
+            return res.send(400, Error('Neuspjelo brisanje recenzije'));
+        }
+        res.send(200);
+        event.emit('review:delete', req.id, doc);
+        return;
+    });
 };

@@ -1,41 +1,53 @@
 'use strict';
 
-var expect = require('expect'),
+var should = require('should'),
     mongoose = require('mongoose'),
     Winery = mongoose.model('Winery');
 
 var winery;
-mongoose.createConnection('mongodb://localhost/iwdb-test');
+//mongoose.createConnection('mongodb://localhost/iwdb-test');
 
 describe('Winery Model', function() {
     before(function(done) {
         winery = new Winery({
-            provider: 'local',
-            name: 'Fake User',
-            email: 'test@test.com',
-            password: 'password'
+            name: 'Vukoje vinarija',
         });
 
         // Clear users before testing
-        User.remove().exec();
+        Winery.remove().exec();
         done();
     });
 
     afterEach(function(done) {
-        User.remove().exec();
+        Winery.remove().exec();
         done();
     });
 
-    it('should begin with no users', function(done) {
-        User.find({}, function(err, users) {
-            users.should.have.length(0);
+    it('should contain 0 documents', function(done) {
+        Winery.find({}, function(err, wineries) {
+            wineries.should.have.length(0);
             done();
         });
     });
 
+    it('should be able to save without problems', function(done) {
+        winery.save(done);
+    });
+
+
+
+    /* it('should have field name set up properly', function(done) {
+        winery.save(function() {
+            Winery.find({}, function(err, wineries) {
+                wineries[0].should.have.length(1);
+                done();
+            });
+        });
+    });*/
+    /*
     it('should fail when saving a duplicate user', function(done) {
         user.save();
-        var userDup = new User(user);
+        var userDup = new Winery(user);
         userDup.save(function(err) {
             should.exist(err);
             done();
@@ -57,5 +69,7 @@ describe('Winery Model', function() {
     it("should not authenticate user if password is invalid", function() {
         user.authenticate('blah').should.not.be.true;
     });
+
+*/
 
 });

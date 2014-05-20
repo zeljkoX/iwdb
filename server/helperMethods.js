@@ -34,3 +34,24 @@ exports.filter = function(req, allowed) {
         return {};
     }
 };
+
+exports.getArrayId = function(arr){
+    var start = arr.length + 1,
+    id,
+    iterate = true;
+    while(iterate){
+        if(arr.every(function(item){
+            if(item._id != id){
+                return true;
+            }
+            return false;
+        })){
+            id = start;
+            iterate = false;
+        }
+        else{
+            start++;
+        }
+    }
+    return id;
+ };

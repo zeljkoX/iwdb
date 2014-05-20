@@ -1,3 +1,4 @@
+/*
 'use strict';
 
 var should = require('should'),
@@ -18,3 +19,5 @@ describe('GET /api/awesomeThings', function() {
       });
   });
 });
+
+*/

@@ -36,9 +36,11 @@ exports.AwardPerWineSchema = new Schema({
         type: String,
         required: true
     },
-    awardId: Schema.Types.ObjectId,
-    wineYear: {
+    vintage: {
         type: Number
+    },
+    awardId: {
+        type: Schema.Types.ObjectId
     },
     awardYear: {
         type: Number
@@ -86,6 +88,9 @@ exports.PictureSchema = new Schema({
         required: true
     },
     alt: {
+        type: String
+    },
+    name: {
         type: String
     }
 });
@@ -228,7 +233,8 @@ exports.LocationSchema = new Schema({
 exports.ReviewSchema = new Schema({
     user: {}, //id, name, location
     date: {
-        type: Date
+        type: Date,
+        default: Date.now
     },
     plus: {
         type: Number
@@ -238,6 +244,9 @@ exports.ReviewSchema = new Schema({
     },
     rating: {
         type: Number //Rating od strane korisnika koji je napisao recenziju
+    },
+    review: {
+        type: String
     }
 });
 
@@ -301,11 +310,34 @@ exports.UserReviewSchema = new Schema({
     pageId: {
         type: String
     },
-    date: {
-        type: Date
-    },
-    text: {
+    pageName: {
         type: String
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    },
+    review: {
+        type: String
+    },
+    rating: {
+        type: Number
+    },
+    category: {
+        type: String
+    }
+});
+
+exports.LikedReviewSchema = new Schema({
+    rid: {
+        type: String
+    },
+    pid: {
+        type: String
+    }, //pafe id TODO
+    like: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -326,7 +358,7 @@ exports.UserRatingSchema = new Schema({
 exports.PictureSchema = new Schema({
     name: {},
     url: {
-        type: String
+        type: String //url from other site
     },
     desc: {
         type: String
