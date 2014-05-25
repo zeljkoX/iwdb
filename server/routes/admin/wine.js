@@ -29,12 +29,12 @@ router.route('/wine/:id/')
 
 router.get('/wine/:id/publish/', wine.adminPublish);
 
-
+/*
 router.route('/wine/:id/reviews/')
     .get(review.listing)
     .put(review.adminChange)
     .delete(review.adminDelete);
-
+*/
 router.route('/wine/:id/problem/')
     .get(wine.adminProblem)
     .delete(wine.adminProblemDelete);

@@ -42,11 +42,11 @@ router.route('/winery/:id/')
     .delete(winery.adminWineryDelete);
 
 router.get('/winery/:id/publish/', winery.adminPublish);
-
+/*
 router.get('/winery/:id/reviews/', review.listing);
 
 router.route('/winery/:id/reviews/:rid')
     .put(review.adminChange)
     .delete(review.adminDelete);
-
+*/
 module.exports = router;

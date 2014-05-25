@@ -2,6 +2,7 @@ var subscheme = require('./subschemes.js');
 var User = require('./user-wine.js');
 var helpers = require('../helperMethods.js');
 var first;
+
 var sortedReviews = function() {
     if (review != this.review) {
         first = this.reviews.sort(function(one, two) {
@@ -31,6 +32,7 @@ exports.publish = function(schema) {
         published: Boolean,
         default: false
     });
+
 
     schema.methods.publish = function(cb) {
         this.published = !this.published;
@@ -277,4 +279,6 @@ exports.pageView = function(schema, options) {
         this.stats.pageViews += 1;
         this.save();
     });
+});
+
 };

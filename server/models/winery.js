@@ -253,5 +253,4 @@ var validateYear = [{
 }];
 
 
-
 module.exports = mongoose.model('Winery', WinerySchema, 'winery');
