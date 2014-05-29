@@ -2,5 +2,6 @@
 #awards - awards per year schema
 #review -update
 #pictures plugin- bulk upload
-#review -rate
-
+User model --addRating method
+User model --deleteRating method
+Implement Error Reporting

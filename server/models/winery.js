@@ -2,7 +2,8 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     autoIncrement = require('mongoose-auto-increment'),
     plugin = require('./plugins.js'),
-    subschema = require('./subschemes.js');
+    subschema = require('./subschemes.js'),
+    helper = require('../helperMethods.js');
 
 
 
@@ -71,23 +72,21 @@ var WinerySchema = new Schema({
     },
     wines: [subschema.ListOfWinesSchema], //listOfWinesSchema
     media: [subschema.MediaSchema],
-    selling: {
-        type: String
-    },
-    literPerYear: {
-        type: Number
-    },
-    altitude: {
-        type: Number
-    },
-    owner: {
-        type: String
-    },
-    povrsina: {
-        type: Number
+    details: {
+        literPerYear: {
+            type: Number
+        },
+        altitude: {
+            type: Number
+        },
+        owner: {
+            type: String
+        },
+        povrsina: {
+            type: Number
+        }
     },
     grapes: [subschema.ShortGrapeSchema],
-    pictures: [subschema.PictureSchema],
     awards: [subschema.AwardPerWineSchema],
     wineriesLocations: [subschema.LocationSchema], //definition of wineyards   WineriesLocationSchema
     rss: {
@@ -107,8 +106,23 @@ var WinerySchema = new Schema({
             type: Number,
             default: 0
         }
-    }
+    },
+    addedBy: {
+        name: {
+            type: String
+        },
+        id: {
+            type: String
+        },
+        date: {
+            type: Date,
+            default: Date.now
+        }
+    },
 });
+
+WinerySchema.set('versionKey', false);
+
 /***************************
  *  Methods
  ***************************/
@@ -120,23 +134,11 @@ var WinerySchema = new Schema({
  */
 WinerySchema.methods.addWine = function(wines, cb) {
     this.wines.addToSet(wines);
-    this.save(function(err, doc) {
+
+    this.save(function(err) {
         if (err) {
+            console.log(err);
             return cb(Error('Wine not added'));
-        }
-        return cb(null);
-    });
-};
-/**
- *  Add wine to winerie
- *
- *  @param {Array} wines
- */
-WinerySchema.methods.addAwards = function(awards, cb) {
-    this.awards.addToSet(awards);
-    this.save(function(err, doc) {
-        if (err) {
-            return cb(Error('Award/s not added'));
         }
         return cb(null);
     });
@@ -147,7 +149,7 @@ WinerySchema.methods.addAwards = function(awards, cb) {
  *
  *  @param {Array} wines
  */
-WinerySchema.methods.addAwards = function(media, cb) {
+WinerySchema.methods.addMedia = function(media, cb) {
     this.media.addToSet(media);
     this.save(function(err, doc) {
         if (err) {
@@ -157,6 +159,10 @@ WinerySchema.methods.addAwards = function(media, cb) {
     });
 };
 
+
+/***************************
+ *  Statics
+ ***************************/
 /**
  *  Transform function used to transform document for public use
  */
@@ -187,6 +193,13 @@ WinerySchema.statics.searchByCountryAndName = function(country, name, cb) {
     }, cb);
 };
 
+/***************
+ *  PLUGINS
+ ***************/
+
+/**
+ * increment _id field
+ */
 WinerySchema.plugin(autoIncrement.plugin, {
     model: 'Winery',
     startAt: 0,
@@ -194,15 +207,15 @@ WinerySchema.plugin(autoIncrement.plugin, {
     prepend: 7
 });
 
-/***************
- *  PLUGINS
- ***************/
-
 /**
  * Add url field and write to it url based name
  */
 WinerySchema.plugin(plugin.urlify);
 
+/**
+ * Add awards field and addAwards method
+ */
+WinerySchema.plugin(plugin.awards);
 /**
  * Add reviews and topReview fields.
  */

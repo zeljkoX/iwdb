@@ -35,23 +35,36 @@ exports.filter = function(req, allowed) {
     }
 };
 
-exports.getArrayId = function(arr){
+exports.getArrayId = function(arr) {
     var start = arr.length + 1,
-    id,
-    iterate = true;
-    while(iterate){
-        if(arr.every(function(item){
-            if(item._id != id){
+        id,
+        iterate = true;
+    while (iterate) {
+        if (arr.every(function(item) {
+            if (item._id != id) {
                 return true;
             }
             return false;
-        })){
+        })) {
             id = start;
             iterate = false;
-        }
-        else{
+        } else {
             start++;
         }
     }
     return id;
- };
+};
+
+exports.isObject = function(obj) {
+    return obj === Object(obj);
+};
+
+exports.isArray = process.nativeIsArray || function(obj) {
+    return toString.call(obj) === '[object Array]';
+};
+
+exports.Error = function(domain) {
+    return function(message) {
+        return Error(domain + ':' + message);
+    };
+};

@@ -29,28 +29,40 @@ describe('Picture plugin', function() {
 
     it('should add picture', function(done) {
         winery.pictureAdd({
-            name: 'zeljko'
-        }, done);
+            name: 'zeljko',
+            url: 'zeljko.jpg',
+            desc: 'zeljko'
+        }, function(err) {
+            should.not.exists(err);
+            winery.pictures.should.have.length(1);
+            done();
+        });
     });
 
-    it('should have field url pictures set up properly', function(done) {
-        winery.should.have.ownProperty('pictures');
+    it('should have field pictures set up properly', function(done) {
+        winery.should.have.property('pictures');
         done();
     });
 
-    it('should have field url picture set up properly', function(done) {
-        winery.should.have.ownProperty('picture');
+    it('should have field picture set up properly', function(done) {
+        winery.should.have.property('picture');
         done();
     });
 
     it('should set picture as default', function(done) {
         var pid = winery.pictures[0]._id;
-        winery.pictureSetDefault(pid, done);
+        winery.pictureDefault(pid, function(err) {
+            should.not.exists(err);
+            done();
+        });
     });
 
     it('should delete picture', function(done) {
         var pid = winery.pictures[0]._id;
-        winery.pictureDelete(pid, done);
+        winery.pictureDelete(pid, function(err) {
+            should.not.exists(err);
+            done();
+        });
     });
 
 });

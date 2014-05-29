@@ -1,6 +1,10 @@
-var subscheme = require('./subschemes.js');
-var User = require('./user-wine.js');
-var helpers = require('../helperMethods.js');
+'use strict';
+var subscheme = require('./subschemes.js'),
+    User = require('./user-wine.js'),
+    helpers = require('../helperMethods.js'),
+    urlify = require('urlify'),
+    indexOfObject = require('array-indexofobject');
+
 var first;
 
 var sortedReviews = function() {
@@ -203,10 +207,14 @@ exports.picture = function(schema, options) {
 
 
     schema.methods.pictureAdd = function(picture, cb) {
-        picture._id = helpers.getArrayId(this.pictures);
+        //picture._id = helpers.getArrayId(this.pictures);
+        if (!this.picture || this.picture == '') {
+            this.picture = picture;
+        }
         this.pictures.push(picture);
         this.save(function(err) {
             if (err) {
+                console.log(err);
                 return cb(Error('Slika neuspjesno sacuvan'));
             }
             return cb(null);
@@ -214,7 +222,7 @@ exports.picture = function(schema, options) {
     };
     schema.methods.pictureDelete = function(pid, cb) {
         var isDefault;
-        isDefault = (pid == this.picture);
+        isDefault = (pid == this.picture._id);
 
         this.pictures.id(pid).remove(function(err) {
             if (err) {
@@ -230,7 +238,7 @@ exports.picture = function(schema, options) {
         var picture = this.pictures.id(pid);
         var index;
         if (index = this.pictures.indexOf(picture) !== undefined) {
-            this.pictures.push(this.picture);
+            //this.pictures.push(this.picture);
             this.picture = picture;
         }
         this.save(function(err) {
@@ -275,10 +283,151 @@ exports.notify = function(schema, options) {
 };
 
 exports.pageView = function(schema, options) {
-    schema.method('pageView', function() {
+    schema.method('pageView', function(cb) {
         this.stats.pageViews += 1;
-        this.save();
+        this.save(cb);
     });
-});
+};
 
+exports.rating = function(schema, options) {
+    schema.add({
+        rating: [subscheme.RatingSchema]
+    });
+    schema.methods.rate = function(uid, pid, rate, cb) {
+        //check if user
+        /*var user = User.findById(uid, function(err, user) {
+                if (err) {
+                    cb(Error('User not found'));
+                }
+                var userRating = user.ratings.id(pid);
+
+                if (userRating) {
+                    this.rating[userRating.rank] -= 1;
+                    this.rating.sum -= userRating.rank;
+                }
+                userRating.remove();
+                //next is code that is not commented
+            }; */
+
+        this.rating[rate] += 1;
+        this.rating.sum += rate;
+        this.rate = (this.rating.number / this.rating.sum).toFixed(1);
+        this.save(function(err) {
+            if (err) {
+                cb(Error('Ranking not succeeded'));
+            }
+            cb(null);
+            // User.addRating(pid, rate); TODO
+            return;
+        });
+
+
+    };
+    schema.methods.deleteRating = function(uid, pid, rate, cb) {
+        this.rating[rate] -= 1;
+        this.rating.number -= 1;
+        this.rating.sum -= rate;
+        this.rate = (this.rating.number / this.rating.sum).toFixed(1);
+        this.save(function(err) {
+            if (err) {
+                cb(Error('Delete rank not succeeded'));
+            }
+            cb(null);
+            // User.deleteRating(pid, rate); TODO
+            return;
+        });
+    };
+
+};
+
+
+exports.awards = function(schema, options) {
+    schema.add({
+        awards: [subscheme.AwardPerWineSchema]
+    });
+
+    /**
+     *  Add award to wine
+     *
+     *  @param {Array} award
+     *  @param {Function} cb
+     */
+    schema.methods.addAwards = function(awards, cb) {
+        if (!Array.isArray(awards)) {
+            return cb(Error('Award not added'));
+        }
+        var doc = this;
+        awards.forEach(function(award) {
+            //doc.awards.push(award);
+            var index = indexOfObject(doc.awards, award, ['awardId', 'rank']);
+            if (index == -1) {
+
+                return doc.awards.addToSet(award);
+            }
+        });
+        /*if (!doc.awards.length) {
+                doc.awards.push(award);
+            } else {
+                exist = doc.awards.every(function(item) {
+                    if (award.name !== item.name && award.rank !== item.rank && award.awardYear !== item.awardYear) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                if (!exist) {
+                    doc.awards.push(award);
+                }
+                // return cb(Error('Award already exists'));
+
+            }*/
+        //Sortiranje po godini, potom po ranku
+        /*   doc.awards.sort(function(first, second) {
+            if (first.year < second.year) {
+                return -1;
+            } else if (first.year > second.year) {
+                return 1;
+            } else {
+                if (first.rank < second.rank) {
+                    return -1;
+                } else if (first.rank < second.rank) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+*/
+
+
+        doc.save(function(err, doc) {
+            if (err) {
+                console.log(err);
+                return cb(Error('Award not added'));
+            }
+            return cb(null);
+        });
+
+    };
+    schema.methods.deleteAward = function(awards, cb) {
+        if (!Array.isArray(awards)) {
+            return cb(Error('Arguments not valid'));
+        }
+        var doc = this;
+        //refactor async
+        awards.forEach(function(award) {
+            doc.awards.forEach(function(item) {
+                if (item.awardId == award._id) {
+                    item.remove(function(err) {
+                        if (err) {
+                            cb(Error('Award not removed'));
+                        }
+                    });
+                }
+            });
+        });
+        //update stats
+
+        return cb(null);
+    };
 };

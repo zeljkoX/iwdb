@@ -2,7 +2,14 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 var ProblemSchema = new Schema({
-    user: {}, //    user id and name
+    user: {
+        _id: {
+            type: String
+        },
+        name: {
+            type: String
+        }
+    }, //    user id and name
     explanation: {
         type: String
     },

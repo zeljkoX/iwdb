@@ -27,7 +27,60 @@ exports.ShortWineSchema = new Schema({
     wineId: Schema.Types.ObjectId,
 });
 
+/**
+Used in: winery.js, wine.js
+*/
+exports.AwardSchema = new Schema({
+    year: {
+        type: Number
+    },
+    wine: {
+        name: {
+            type: String,
+            required: true
+        },
+        _id: {
+            type: String
+        }
+    },
+    winery: {
+        name: {
+            type: String,
+            required: true
+        },
+        _id: {
+            type: String
+        },
+        location: {
+            type: String
+        }
+    },
+    rank: {
+        name: {
+            type: String,
+            required: true
+        },
+        _id: {
+            type: String
+        }
+    }
+});
 
+exports.AwardRankSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String
+    },
+    picture: {
+        type: String
+    },
+    rank: {
+        type: Number
+    }
+});
 /**
 Used in: winery.js, wine.js
 */
@@ -40,12 +93,15 @@ exports.AwardPerWineSchema = new Schema({
         type: Number
     },
     awardId: {
-        type: Schema.Types.ObjectId
+        type: String //Schema.Types.ObjectId
     },
     awardYear: {
         type: Number
     },
-    award: {
+    rank: {
+        type: String
+    },
+    _id: {
         type: String
     }
 });
@@ -63,7 +119,7 @@ ListOfWinesSchema = new Schema({
 /**
 Used in: 
 */
-exports.AwardPrizeSchema = new Schema({
+exports.AwardRankSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -252,53 +308,38 @@ exports.ReviewSchema = new Schema({
 
 exports.RatingSchema = new Schema({
     1: {
-        type: Number,
-        min: 1,
-        max: 10
+        type: Number
     },
     2: {
-        type: Number,
-        min: 1,
-        max: 10
+        type: Number
     },
     4: {
-        type: Number,
-        min: 1,
-        max: 10
+        type: Number
     },
     5: {
-        type: Number,
-        min: 1,
-        max: 10
+        type: Number
     },
     6: {
-        type: Number,
-        min: 1,
-        max: 10
+        type: Number
     },
     7: {
-        type: Number,
-        min: 1,
-        max: 10
+        type: Number
     },
     8: {
-        type: Number,
-        min: 1,
-        max: 10
+        type: Number
     },
     9: {
         type: Number
     },
     10: {
-        type: Number,
-        min: 1,
-        max: 10
+        type: Number
     },
-    all: {
-        type: Number, //Ukupan broj ocjena
-        min: 1,
-        max: 10
+    sum: {
+        type: Number
     },
+    number: {
+        type: Number
+    }, //number of ratings
     rate: {
         type: Number,
         min: 0,
@@ -307,10 +348,10 @@ exports.RatingSchema = new Schema({
 });
 
 exports.UserReviewSchema = new Schema({
-    pageId: {
+    name: {
         type: String
     },
-    pageName: {
+    category: {
         type: String
     },
     date: {
@@ -323,13 +364,13 @@ exports.UserReviewSchema = new Schema({
     rating: {
         type: Number
     },
-    category: {
+    _id: {
         type: String
     }
 });
 
 exports.LikedReviewSchema = new Schema({
-    rid: {
+    _id: { //rid
         type: String
     },
     pid: {
@@ -349,18 +390,30 @@ exports.UserRatingSchema = new Schema({
         type: Date
     },
     rate: {
-        type: Number,
-        min: 1,
-        max: 10
+        type: Number
     }
 });
 
 exports.PictureSchema = new Schema({
-    name: {},
+    name: {
+        type: String
+    },
     url: {
         type: String //url from other site
     },
     desc: {
+        type: String
+    }
+});
+
+exports.PageMiniSchema = new Schema({
+    name: {
+        type: String
+    },
+    id: {
+        type: String //url from other site
+    },
+    category: {
         type: String
     }
 });

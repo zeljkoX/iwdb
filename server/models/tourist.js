@@ -12,12 +12,6 @@ var TouristSchema = new Schema({
         max: 50,
         min: 5
     },
-    url: {
-        type: String //Calculated based on name field
-    },
-    published: {
-        type: Boolean
-    },
     country: {
         type: String
     },
@@ -32,9 +26,6 @@ var TouristSchema = new Schema({
         type: String
     },
     plans: [subschema.TouristPlanSchema],
-    profil: {
-        type: String
-    },
     rss: {
         type: String
     },

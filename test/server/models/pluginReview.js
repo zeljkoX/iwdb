@@ -34,9 +34,10 @@ describe('Plugin Review', function() {
 
 
     it('it should add review', function(done) {
-        winery.reviewAdd({
+        winery.reviewAdd('userId', 'pageId', {
             user: 'Zeljko'
-        }, function() {
+        }, function(err) {
+            should.not.exists(err);
             winery.reviews.should.have.length(1);
             done();
         });
@@ -52,13 +53,15 @@ describe('Plugin Review', function() {
             user: 'Jovana'
         };
         winery.reviewChange(rid, data, function(err) {
+            should.not.exists(err);
             winery.reviews[0].user.should.eql('Jovana');
             done();
         });
     });
     it('it should delete review', function(done) {
         var rid = winery.reviews[0]._id;
-        winery.reviewDelete(rid, function() {
+        winery.reviewDelete(rid, function(err) {
+            should.not.exists(err);
             winery.reviews.should.have.length(0);
             done();
         });
