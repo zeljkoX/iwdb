@@ -7,7 +7,7 @@ var should = require('should'),
 var winery;
 
 
-describe('Picture plugin', function() {
+xdescribe('Picture plugin', function() {
     before(function(done) {
         winery = new Winery({
             name: 'Vukoje vinarija',

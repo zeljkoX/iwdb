@@ -7,7 +7,7 @@ var should = require('should'),
 var winery;
 
 
-describe('Urlify plugin', function() {
+xdescribe('Urlify plugin', function() {
     before(function(done) {
         winery = new Winery({
             name: 'Vukoje vinarija',

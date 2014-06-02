@@ -154,23 +154,7 @@ numberOfAwards.get(function() {
  *  Methods
  ***************************/
 
-/**
- *  Method to invoke after document is updated
- *  fix dependencies
- *  @param 
- */
-WinerySchema.methods.onUpdate = function(cb) {
-    //if name is updated
-    function name(){
-        //update subdocument in winery db
-        
-        //iterate every award and change name of wine
-        
-        //iterate merchant wine schema and update
-    };
-    
 
-};
 
 
 /***************************

@@ -7,7 +7,7 @@ var should = require('should'),
 var grape;
 //mongoose.createConnection('mongodb://localhost/iwdb-test');
 
-describe('Grape Model', function() {
+xdescribe('Grape Model', function() {
     before(function(done) {
         grape = new Grape({
             name: 'Pinot Noir'

@@ -7,7 +7,7 @@ var should = require('should'),
 var user;
 //mongoose.createConnection('mongodb://localhost/iwdb-test');
 
-describe('User Model', function() {
+xdescribe('User Model', function() {
     before(function(done) {
         user = new User({
             name: 'Zeljko',

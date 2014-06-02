@@ -69,8 +69,8 @@ virtual.get(function() {
 /**
  *  Transform function used to transform document for public use
  */
-if (!CountrySchema.options.toObject) CountrySchema.options.toObject = {};
-CountrySchema.options.toObject.transform = function(doc, ret, options) {
+if (!MerchantSchema.options.toObject) MerchantSchema.options.toObject = {};
+MerchantSchema.options.toObject.transform = function(doc, ret, options) {
     delete ret._id;
     delete ret.published;
     delete ret.stats;
@@ -82,19 +82,7 @@ CountrySchema.options.toObject.transform = function(doc, ret, options) {
 /***************************
  *  Methods
  ***************************/
-/**
- *  Method to invoke after document is updated
- *  fix dependencies
- *  @param 
- */
-WinerySchema.methods.onUpdate = function(cb) {
-    //name
-    function name(){
-         //update every field in wines
 
-    };
-
-};
 
 /***************
  *  PLUGINS

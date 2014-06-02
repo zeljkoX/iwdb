@@ -57,10 +57,10 @@ exports.urlify = function(schema) {
         url: String
     });
     schema.pre('save', function(next) {
-        if(this.isNew){
-        var doc = this;
-        var url = urlify(doc['name']);
-        doc.url = url;
+        if (this.isNew) {
+            var doc = this;
+            var url = urlify(doc['name']);
+            doc.url = url;
         }
         next();
     })
@@ -437,45 +437,45 @@ exports.awards = function(schema, options) {
 /**
  * Add methods to add and remove from subschema fields
  */
- 
+
 
 exports.subschemaAddRemove = function(schema, fields) {
-    if(!Array.isArray(fields)){
+    if (!Array.isArray(fields)) {
         return false;
     }
-    fields.forEach(function(field){
+    fields.forEach(function(field) {
         //Add method
-    schema.methods['add' + field] = (function(field, data, cb){
-        this[field].push(data);
-        this.save(function(err) {
-        if (err) {
-            return cb(UserError(field + ' not added'));
-        }
-        return cb(null);
-    });
-    }).bind(this, field); 
+        schema.methods['add' + field] = (function(field, data, cb) {
+            this[field].push(data);
+            this.save(function(err) {
+                if (err) {
+                    return cb(UserError(field + ' not added'));
+                }
+                return cb(null);
+            });
+        }).bind(this, field);
 
-    //remove method
-    schema.methods['remove' + field] = (function(field, data, cb){
-        var doc = this;
-        doc[field].id(data._id).remove(function(err) {
-        if (err) {
-            return cb(UserError(field + 'not removed'));
-        }
-         doc.save(function(err) {
-        if (err) {
-            return cb(UserError(field + 'not removed'));
-        }
-        return cb(null);
-    });
-    });
-       
-    }).bind(this, field);    
+        //remove method
+        schema.methods['remove' + field] = (function(field, data, cb) {
+            var doc = this;
+            doc[field].id(data._id).remove(function(err) {
+                if (err) {
+                    return cb(UserError(field + 'not removed'));
+                }
+                doc.save(function(err) {
+                    if (err) {
+                        return cb(UserError(field + 'not removed'));
+                    }
+                    return cb(null);
+                });
+            });
+
+        }).bind(this, field);
 
 
     });
 
-    
+
 };
 
 /**
@@ -506,17 +506,20 @@ exports.modified = function(schema) {
     schema.add({
         modified: []
     });
-    
+
     schema.methods.modify = function(user, cb) {
-        if(!user) {
+        if (!user) {
             user = admin;
         }
-    this.modified.push({date: Date.now, user});
+        this.modified.push({
+            date: Date.now,
+            user: user
+        });
         this.save(function(err) {
             if (err) {
                 return cb(Error('Modification not written'));
             }
-        return cb(null);
-    });
+            return cb(null);
+        });
     };
 };

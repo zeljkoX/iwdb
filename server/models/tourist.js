@@ -66,19 +66,7 @@ virtual.get(function() {
 /***************************
  *  Methods
  ***************************/
-/**
- *  Method to invoke after document is updated
- *  fix dependencies
- *  @param 
- */
-WinerySchema.methods.onUpdate = function(cb) {
-    //name
-    function name(){
-         //update every field in wines
 
-    };
-
-};
 
 /***************************
  *  Statics

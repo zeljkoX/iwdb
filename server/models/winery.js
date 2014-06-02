@@ -3,7 +3,11 @@ var mongoose = require('mongoose'),
     autoIncrement = require('mongoose-auto-increment'),
     plugin = require('./plugins.js'),
     subschema = require('./subschemes.js'),
-    helper = require('../helperMethods.js');
+    helper = require('../helperMethods.js'),
+    update = require('../update.js')('Update winery db', function(log) {
+        console.log(log);
+        console.log('Winery update fired');
+    });
 
 /** 
 Fields edited by user
@@ -41,12 +45,10 @@ var WinerySchema = new Schema({
     },
     country: {
         _id: {
-            type: String,
-            required: true
+            type: String
         },
         name: {
-            type: String,
-            required: true
+            type: String
         },
         republic: {
             type: String
@@ -54,22 +56,18 @@ var WinerySchema = new Schema({
     },
     region: {
         name: {
-            type: String,
-            required: true
+            type: String
         },
         _id: {
-            type: String,
-            required: true
+            type: String
         }
     },
     location: {
         city: {
-            type: String,
-            required: true
+            type: String
         },
         address: {
-            type: String,
-            required: true
+            type: String
         }
     },
     contact: {
@@ -179,30 +177,61 @@ WinerySchema.methods.addMedia = function(media, cb) {
         return cb(null);
     });
 };
+/************************
+ *UPDATE definition
+ *
+ ************************/
+//trigger to run update functions
+WinerySchema.pre('save', function(next) {
+    this.newDoc = this.isNew;
+    this.fields = this.modifiedPaths();
+    next();
+});
+WinerySchema.post('save', function(doc) {
+    if (!this.newDoc) {
+        update.run(doc, this.fields);
+    }
+});
 
-/**
- *  Method to invoke after document is updated
- *  fix dependencies
- *  @param 
- */
-WinerySchema.methods.onUpdate = function(cb) {
-    //if name is updated
-    function name(){
-        //iterate every wines entry, edit, and edit entries in wines db
-        
-        //update every document for awards in awards db
-        
-        //update every document in tourist and merchant schema
-    };
 
-};
+update.use(function(doc, fields, log, next) {
+
+    //if (doc.name.isModified()) {
+    if (fields.indexOf('name')) {
+        var action = {
+            name: 'Update on field: name change',
+            success: 0,
+            failure: 0,
+            err: []
+        };
+        doc.wines.forEach(function(wine) {
+            Wine.findByID(wine._id, function(wine) {
+                wine.winery.name = name;
+                wine.save(function(err) {
+                    if (err) {
+                        action.failure += 1;
+                        action.err.push({
+                            _id: wine._id,
+                            name: wine.name,
+                            err: err
+                        });
+                    }
+                    action.success += 1;
+                });
+            });
+        });
+        log.actions.push(action);
+    }
+    next();
+});
+
 
 /**
  *  Method to remove winery and all its dependecies
- *  @param 
+ *  @param
  */
 WinerySchema.methods.removeFromDb = function(cb) {
- 
+
 };
 /***************************
  *  Statics

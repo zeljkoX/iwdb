@@ -193,20 +193,6 @@ AwardSchema.methods.deleteRank = function(rank, cb) {
     });
 };
 
-/**
- *  Method to invoke after document is updated
- *  fix dependencies
- *  @param 
- */
-WinerySchema.methods.onUpdate = function(cb) {
-    //name
-    function name(){
-         //update year field, iterate every document and modify winery.name field
-        
-        // iteration access every document and change its subschema (AwardPerWineSchema) , name field
-    };
-
-};
 
 /***************************
  *  Statics

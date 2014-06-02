@@ -15,7 +15,7 @@ var RegionSchema = new Schema({
         index: true
     },
     country: {
-        type: String,,
+        type: String,
         required: true
     },
     article: {
