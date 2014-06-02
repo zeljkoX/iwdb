@@ -18,12 +18,10 @@ var UserSchema = new Schema({
         type: String,
         required: true
     },
-    reviews: {
-        reviews: [subschema.UserReviewSchema],
-        liked: [subschema.LikedReviewsSchema]
-    },
+    review: [subschema.UserReviewSchema],
+    likedReview: [subschema.LikedReviewsSchema],
     rating: [subschema.UserRatingSchema],
-    favourites: [subschema.ShortWineSchema], //user favourite wines     ShortWineSchema
+    favourite: [subschema.ShortWineSchema], //user favourite wines     ShortWineSchema
     recently: [subschema.ShortWineSchema], //recently viewed wines
     banned: {
         type: Boolean,
@@ -55,13 +53,34 @@ var UserSchema = new Schema({
     }, // user created tourist
     addedItems: [subschema.PageMiniSchema] //TODO item added by user
 
+}, {
+    strict: true
 });
 
 UserSchema.set('versionKey', false);
 
+
+UserSchema.pre('save', function(next) {
+    var doc = this;
+    console.log(doc.isNew);
+    console.log(doc.modifiedPaths());
+    this.modifiedP = doc.modifiedPaths();
+    next();
+});
+
+UserSchema.post('save', function() {
+    var doc = this;
+    console.log(doc);
+
+});
+
 /***************************
  *  Methods
  ***************************/
+
+
+
+
 
 /**
  *  Add rating entry to user db
@@ -106,7 +125,7 @@ UserSchema.methods.removeRating = function(rid, cb) {
  *  @param {Function} cb
  */
 UserSchema.methods.addReview = function(review, cb) {
-    this.reviews.reviews.push(review);
+    this.review.push(review);
     this.save(function(err, doc) {
         if (err) {
             console.log(err);
@@ -123,7 +142,7 @@ UserSchema.methods.addReview = function(review, cb) {
  */
 UserSchema.methods.removeReview = function(rid, cb) {
     var doc = this;
-    doc.reviews.reviews.id(rid).remove(function(err) {
+    doc.review.id(rid).remove(function(err) {
         if (err) {
             return cb(UserError('Review not removed'));
         }
@@ -144,7 +163,7 @@ UserSchema.methods.removeReview = function(rid, cb) {
  *  @param {Function} cb
  */
 UserSchema.methods.addLikedReview = function(review, cb) {
-    this.reviews.liked.push(review);
+    this.likedReview.push(review);
     this.save(function(err, doc) {
         if (err) {
             console.log(err);
@@ -161,7 +180,7 @@ UserSchema.methods.addLikedReview = function(review, cb) {
  */
 UserSchema.methods.removeLikedReview = function(rid, cb) {
     var doc = this;
-    doc.reviews.liked.id(rid).remove(function(err) {
+    doc.likedReview.id(rid).remove(function(err) {
         if (err) {
             return cb(UserError('Review not removed'));
         }
@@ -265,6 +284,13 @@ UserSchema.methods.addTourist = function(wines, cb) {
  *  @param {Function} cb
  */
 UserSchema.methods.addTourist = function(wines, cb) {
+
+    /***************
+     *  PLUGINS
+     ***************/
+
+    //ADD and REMOVE methods for {Rating, Review, LikedReview, Favourites}
+    //UserSchema.plugin(plugin.subschemaAddRemove(['Rating', 'Review', 'LikedReview', 'Favourite']));
 
 };
 

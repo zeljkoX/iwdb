@@ -6,7 +6,17 @@ var mongoose = require('mongoose'),
     helper = require('../helperMethods.js');
 
 var CountryError = helper.Error('Country');
+/** 
+Fields edited by user
+{regions, article, autohtoneSorte, media}
+*/
 
+/**
+On change:
+field: name, 
+    -update winery, tourist, merchant, user, region, 
+    
+    */
 
 var CountrySchema = new Schema({
     name: {
@@ -16,15 +26,12 @@ var CountrySchema = new Schema({
     },
     continent: {
         type: String,
-        enum: ['Europe', 'Asia', 'America', 'Australia', 'Africa']
+        enum: ['Europe', 'Asia', 'America', 'Australia', 'Africa'],
+        required: true
     },
-    abbr: {
-        type: String
-    },
-    wineRegions: [],
-    republic: {
-        type: String
-    },
+    abbr: [], //abbrevatios 
+    regions: [subschema.ShortRegionSchema],
+    republic: [], //Names of Republics
     article: {
         type: String
     },
@@ -39,9 +46,23 @@ var CountrySchema = new Schema({
             default: 0
         }
     }
+}, {
+    strict: true
 });
 
 CountrySchema.set('versionKey', false);
+
+/**
+ *  Transform function used to transform document for public use
+ */
+if (!CountrySchema.options.toObject) CountrySchema.options.toObject = {};
+CountrySchema.options.toObject.transform = function(doc, ret, options) {
+    delete ret._id;
+    delete ret.published;
+    delete ret.stats;
+    delete ret.addedBy;
+    delete ret.modified;
+};
 
 /***************************
  *  Methods
@@ -129,7 +150,41 @@ CountrySchema.methods.removeMerchant = function(merchant, cb) {
     });
 };
 
+/**
+ *  Add region
+ *
+ *  @param {Object} region
+ */
+CountrySchema.methods.addRegion = function(region, cb) {
+    this.regions.addToSet(Region);
 
+    this.save(function(err) {
+        if (err) {
+            return cb(CountryError('Region not added'));
+        }
+        return cb(null);
+    });
+};
+/**
+ *  Remove region
+ *
+ *  @param {Object} region
+ */
+CountrySchema.methods.removeRegion = function(region, cb) {
+    var doc = this;
+    doc.regions.id(region._id).remove(function(err) {
+        if (err) {
+            return cb(CountryError('Region not deleted'));
+        }
+        doc.save(function(err) {
+            if (err) {
+                return cb(CountryError('Region not deleted'));
+            }
+            return cb(null);
+        });
+    });
+
+};
 /***************************
  *  Statics
  ***************************/
@@ -162,6 +217,11 @@ CountrySchema.plugin(plugin.picture);
  * Add publish field and method
  */
 CountrySchema.plugin(plugin.publish);
+
+/**
+ * Add modified field
+ */
+CountrySchema.plugin(plugin.modified);
 
 
 module.exports = mongoose.model('Country', CountrySchema, 'countries');

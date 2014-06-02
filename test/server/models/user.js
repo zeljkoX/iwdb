@@ -41,20 +41,20 @@ describe('User Model', function() {
             category: 'Wine',
             _id: '11111'
         };
-        user.reviews.reviews.should.have.length(0);
+        user.review.should.have.length(0);
         user.addReview(review, function(err) {
             should.not.exists(err);
-            user.reviews.reviews.should.have.length(1);
+            user.review.should.have.length(1);
             done();
         });
 
     });
 
     it('should delete review', function(done) {
-        var review = user.reviews.reviews[0]._id;
+        var review = user.review[0]._id;
         user.removeReview(review, function(err) {
             should.not.exists(err);
-            user.reviews.reviews.should.have.length(0);
+            user.review.should.have.length(0);
             done();
         });
 
@@ -65,20 +65,37 @@ describe('User Model', function() {
             pid: '2222222',
             like: true
         };
-        user.reviews.liked.should.have.length(0);
+        user.likedReview.should.have.length(0);
         user.addLikedReview(review, function(err) {
             should.not.exists(err);
-            user.reviews.liked.should.have.length(1);
+            user.likedReview.should.have.length(1);
             done();
         });
 
     });
 
     it('should delete liked review', function(done) {
-        var review = user.reviews.liked[0]._id;
+        var review = user.likedReview[0]._id;
         user.removeLikedReview(review, function(err) {
             should.not.exists(err);
-            user.reviews.liked.should.have.length(0);
+            user.likedReview.should.have.length(0);
+            done();
+        });
+
+    });
+
+    it('should update name', function(done) {
+
+        User.update({
+            email: 'jahrastaffaraj@gmail.com'
+        }, {
+            email: 'Ana'
+        }, function(err, num, doc) {
+            should.not.exists(err);
+            console.log(num);
+            console.log(doc);
+            user.email.should.equal('Ana');
+            //console.log(user);
             done();
         });
 

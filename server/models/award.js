@@ -10,6 +10,19 @@ var mongoose = require('mongoose'),
 var AwardError = helper.Error('Award');
 var AwardModel = mongoose.model('AwardModel', subschema.AwardSchema)
 
+/** 
+Fields edited by user
+{name, rank, year, location, article, rss, position, region}
+*/
+
+/**
+On change:
+field: name, location
+    -update year field, iterate every document and modify winery.name field
+    -in iteration access every document and change its subschema (AwardPerWineSchema) , name field
+*/
+
+
 var AwardSchema = new Schema({
     name: {
         type: String,
@@ -17,9 +30,6 @@ var AwardSchema = new Schema({
         index: true,
         max: 50,
         min: 3
-    },
-    url: {
-        type: String //Calculated based on name field
     },
     rank: [subschema.AwardRankSchema], //fields: [name, descriptio, picture, rank]
     year: {
@@ -35,12 +45,18 @@ var AwardSchema = new Schema({
     rss: {
         type: String
     },
+    position: {
+        type: Number, //used for positioning between awards
+        required: true
+    },
     stats: {
         pageViews: {
             type: Number,
             default: 0
         }
     }
+}, {
+    strict: true
 });
 
 AwardSchema.set('versionKey', false);
@@ -51,6 +67,19 @@ virtual.get(function() {
     return this._id + '/' + this.url;
 });
 
+/**
+ *  Transform function used to transform document for public use
+ */
+if (!AwardSchema.options.toObject) AwardSchema.options.toObject = {};
+AwardSchema.options.toObject.transform = function(doc, ret, options) {
+    delete ret._id;
+    delete ret.published;
+    delete ret.stats;
+    delete ret.news;
+    delete ret.addedBy;
+    delete ret.modified;
+
+};
 /***************************
  *  Methods
  ***************************/
@@ -164,6 +193,21 @@ AwardSchema.methods.deleteRank = function(rank, cb) {
     });
 };
 
+/**
+ *  Method to invoke after document is updated
+ *  fix dependencies
+ *  @param 
+ */
+WinerySchema.methods.onUpdate = function(cb) {
+    //name
+    function name(){
+         //update year field, iterate every document and modify winery.name field
+        
+        // iteration access every document and change its subschema (AwardPerWineSchema) , name field
+    };
+
+};
+
 /***************************
  *  Statics
  ***************************/
@@ -223,6 +267,16 @@ AwardSchema.plugin(plugin.picture);
  * Add page view mehod
  */
 AwardSchema.plugin(plugin.pageView);
+
+/**
+ * Add addedBy field
+ */
+AwardSchema.plugin(plugin.addedBy);
+
+/**
+ * Add modified field
+ */
+AwardSchema.plugin(plugin.modified);
 
 
 module.exports = mongoose.model('Award', AwardSchema, 'awards');

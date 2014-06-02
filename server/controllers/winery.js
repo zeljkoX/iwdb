@@ -156,3 +156,34 @@ exports.adminPublish = function(req, res) {
         return;
     });
 };
+
+/*********************
+*   Respond to events
+*
+*********************/
+
+event.on('wine:add', function(wine){
+    Winery.findById(wine.winery._id, function(err, winery){
+        if (err){
+            //implement adding to db errors
+        }
+        winery.addWine(wine, function(err){
+          if (err){
+            //implement adding to db errors
+        }  
+        });
+    });
+});
+
+event.on('wine:remove', function(wine){
+    Winery.findById(wine.winery._id, function(err, winery){
+        if (err){
+            //implement adding to db errors
+        }
+        winery.removeWine(wine, function(err){
+          if (err){
+            //implement adding to db errors
+        }  
+        });
+    });
+});

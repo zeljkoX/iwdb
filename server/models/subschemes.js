@@ -12,7 +12,9 @@ exports.ShortGrapeSchema = new Schema({
         type: String,
         required: true
     },
-    _id: Schema.Types.ObjectId
+    _id: {
+        type: String
+    }
 });
 
 
@@ -24,9 +26,21 @@ exports.ShortWineSchema = new Schema({
         type: String,
         required: true
     },
-    wineId: Schema.Types.ObjectId,
+    _id: {
+        type: String
+    },
 });
 
+
+exports.ShortRegionSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    _id: {
+        type: String
+    }
+});
 /**
 Used in: winery.js, wine.js
 */
@@ -49,9 +63,6 @@ exports.AwardSchema = new Schema({
             required: true
         },
         _id: {
-            type: String
-        },
-        location: {
             type: String
         }
     },
@@ -175,7 +186,9 @@ exports.ShortWinerySchema = new Schema({
         type: String,
         required: true
     },
-    _id: Schema.Types.ObjectId,
+    _id: {
+        type: String
+    },
     map: {},
     address: {
         type: String
@@ -215,19 +228,26 @@ exports.WinariesLocationSchema = new Schema({
 Used in: 
 */
 exports.MerchantWineSchema = new Schema({
-    wineName: {
-        type: String,
-        required: true
+    wine: {
+        name: {
+            type: String,
+            required: true
+            },
+        _id: {
+            type: String
+            },
+        vintage: {
+            type: Number
+        } 
     },
     winery: {
-        type: String
+        name: {
+            type: String
+        },
+        _id: {
+            type: String
+        }
     },
-    wineId: {
-        type: Schema.Types.ObjectId
-    },
-    wineVintage: {
-        type: Number
-    }, //Godina berbe
     price: {
         type: Number
     },
@@ -244,7 +264,9 @@ exports.ShortMerchantSchema = new Schema({
         type: String,
         required: true
     },
-    _id: Schema.Types.ObjectId,
+    _id: {
+        type: String
+    },
     country: {
         type: String
     },
@@ -281,7 +303,7 @@ exports.LocationSchema = new Schema({
         type: String,
         required: true
     },
-    id: {
+    _id: {
         type: String //TODO Object ID
     }
 });
@@ -375,7 +397,7 @@ exports.LikedReviewSchema = new Schema({
     },
     pid: {
         type: String
-    }, //pafe id TODO
+    }, //page id TODO
     like: {
         type: Boolean,
         default: false
@@ -410,7 +432,8 @@ exports.PageMiniSchema = new Schema({
     name: {
         type: String
     },
-    id: {
+
+    _id: {
         type: String //url from other site
     },
     category: {

@@ -1,28 +1,37 @@
-var mongoose = require('mongoose');
-/**
- * 
- */
-exports.create = function(req, res){
+var mongoose = require('mongoose'),
+    Tourist = mongoose.model('Tourist'),
+    events = require('events'),
+    event = new events.EventEmitter();
 
-};
 
-/**
- * 
- */
-exports.find = function(req, res){
 
-};
 
-/**
- * 
- */
-exports.update = function(req, res){
+/***********************
+ *   Respond to events
+ ***********************/
 
-};
+event.on('offer:add', function(offer) {
+    Tourist.findById(offer.tourist._id, function(err, tourist) {
+        if (err) {
+            //implement adding to db errors
+        }
+        tourist.addOffer(offer, function(err) {
+            if (err) {
+                //implement adding to db errors
+            }
+        });
+    });
+});
 
-/**
- * 
- */
-exports.delete = function(req, res){
-
-};
+event.on('offer:remove', function(wine) {
+    Tourist.findById(offer.tourist._id, function(err, tourist) {
+        if (err) {
+            //implement adding to db errors
+        }
+        tourist.removeOffer(offer, function(err) {
+            if (err) {
+                //implement adding to db errors
+            }
+        });
+    });
+});

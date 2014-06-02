@@ -5,7 +5,27 @@ var mongoose = require('mongoose'),
     subschema = require('./subschemes.js'),
     helper = require('../helperMethods.js');
 
+/** 
+Fields edited by user
+{name, established, country, region, location, contact, tourist info, description, media, details, awards, rss}
+*/
 
+/**
+On change:
+field: name, 
+    -update every subdocument in wines field as every wine document
+    -update every document for awards in awards db
+    -update every document in tourist and merchant schema
+    */
+/**
+ * Schemas definitions
+ */
+
+
+/**
+Preposition: create after update method
+check updated fields and react
+*/
 
 var WinerySchema = new Schema({
     name: {
@@ -21,13 +41,35 @@ var WinerySchema = new Schema({
     },
     country: {
         _id: {
-            type: String
+            type: String,
+            required: true
         },
         name: {
-            type: String
+            type: String,
+            required: true
         },
         republic: {
             type: String
+        }
+    },
+    region: {
+        name: {
+            type: String,
+            required: true
+        },
+        _id: {
+            type: String,
+            required: true
+        }
+    },
+    location: {
+        city: {
+            type: String,
+            required: true
+        },
+        address: {
+            type: String,
+            required: true
         }
     },
     contact: {
@@ -38,14 +80,6 @@ var WinerySchema = new Schema({
             type: String
         },
         www: {
-            type: String
-        }
-    },
-    location: {
-        city: {
-            type: String
-        },
-        address: {
             type: String
         }
     },
@@ -70,7 +104,7 @@ var WinerySchema = new Schema({
     description: {
         type: String
     },
-    wines: [subschema.ListOfWinesSchema], //listOfWinesSchema
+    wines: [subschema.ListOfWinesSchema],
     media: [subschema.MediaSchema],
     details: {
         literPerYear: {
@@ -93,10 +127,6 @@ var WinerySchema = new Schema({
         type: String
     },
     news: [], //news related to this document TO DO
-    lastModified: {
-        type: Date,
-        default: Date.now
-    },
     stats: {
         numberOfReviews: {
             type: Number,
@@ -106,19 +136,9 @@ var WinerySchema = new Schema({
             type: Number,
             default: 0
         }
-    },
-    addedBy: {
-        name: {
-            type: String
-        },
-        id: {
-            type: String
-        },
-        date: {
-            type: Date,
-            default: Date.now
-        }
-    },
+    }
+}, {
+    strict: true
 });
 
 WinerySchema.set('versionKey', false);
@@ -126,6 +146,7 @@ WinerySchema.set('versionKey', false);
 /***************************
  *  Methods
  ***************************/
+
 
 /**
  *  Add wine to winerie
@@ -159,7 +180,30 @@ WinerySchema.methods.addMedia = function(media, cb) {
     });
 };
 
+/**
+ *  Method to invoke after document is updated
+ *  fix dependencies
+ *  @param 
+ */
+WinerySchema.methods.onUpdate = function(cb) {
+    //if name is updated
+    function name(){
+        //iterate every wines entry, edit, and edit entries in wines db
+        
+        //update every document for awards in awards db
+        
+        //update every document in tourist and merchant schema
+    };
 
+};
+
+/**
+ *  Method to remove winery and all its dependecies
+ *  @param 
+ */
+WinerySchema.methods.removeFromDb = function(cb) {
+ 
+};
 /***************************
  *  Statics
  ***************************/
@@ -192,6 +236,8 @@ WinerySchema.statics.searchByCountryAndName = function(country, name, cb) {
         name: name
     }, cb);
 };
+
+
 
 /***************
  *  PLUGINS
@@ -245,6 +291,16 @@ WinerySchema.plugin(plugin.notify);
  * Add page view mehod
  */
 WinerySchema.plugin(plugin.pageView);
+
+/**
+ * Add addedBy field
+ */
+WinerySchema.plugin(plugin.addedBy);
+
+/**
+ * Add modified field
+ */
+WinerySchema.plugin(plugin.modified);
 
 /************************
  * Validate definitions

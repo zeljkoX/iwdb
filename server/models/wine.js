@@ -4,6 +4,21 @@ var mongoose = require('mongoose'),
     plugin = require('./plugins.js'),
     subschema = require('./subschemes.js');
 
+
+/** 
+Fields edited by user
+{name, vintage, alc, volume, intro, article, varietal, wineType, sweetness, awards, details, rss}
+*/
+
+/**
+On change:
+field: name, 
+    -update subdocument in winery db
+    -iterate every award and change name of wine
+    -iterate merchant wine schema and update
+    
+*/
+
 /**
  * Schemas definitions
  */
@@ -16,16 +31,9 @@ var WineSchema = new Schema({
         max: 50,
         min: 5
     },
-    url: {
-        type: String //Calculated based on name field
-    },
-    published: {
-        type: Boolean,
-        default: false
-    },
     vintage: {
         type: Number
-    }, //year of harvest
+    }, //year of harvest  ??? to delete
     addedBy: {
         name: {
             type: String
@@ -123,6 +131,8 @@ var WineSchema = new Schema({
             default: 0
         }
     },
+}, {
+    strict: true
 });
 
 WineSchema.set('versionKey', false);
@@ -141,6 +151,29 @@ numberOfAwards.get(function() {
 });
 
 /***************************
+ *  Methods
+ ***************************/
+
+/**
+ *  Method to invoke after document is updated
+ *  fix dependencies
+ *  @param 
+ */
+WinerySchema.methods.onUpdate = function(cb) {
+    //if name is updated
+    function name(){
+        //update subdocument in winery db
+        
+        //iterate every award and change name of wine
+        
+        //iterate merchant wine schema and update
+    };
+    
+
+};
+
+
+/***************************
  *  Statics
  ***************************/
 
@@ -149,12 +182,6 @@ WineSchema.statics.searchByWinery = function(name, cb) {
         name: name // winery.name
     }, cb);
 };
-/***************************
- *  Methods
- ***************************/
-
-
-
 
 /***************
  *  PLUGINS
@@ -205,5 +232,14 @@ WineSchema.plugin(plugin.picture);
  */
 WineSchema.plugin(plugin.pageView);
 
+/**
+ * Add addedBy field
+ */
+WineSchema.plugin(plugin.addedBy);
+
+/**
+ * Add modified field
+ */
+WineSchema.plugin(plugin.modified);
 
 module.exports = mongoose.model('Wine', WineSchema, 'wine');

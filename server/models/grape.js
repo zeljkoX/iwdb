@@ -36,6 +36,8 @@ var GrapeSchema = new Schema({
             default: 0
         }
     } //statistic   perhaps number of wineris with this grape
+}, {
+    strict: true
 });
 GrapeSchema.set('versionKey', false);
 
@@ -101,6 +103,11 @@ GrapeSchema.plugin(plugin.picture);
  * Add page view mehod
  */
 GrapeSchema.plugin(plugin.pageView);
+
+/**
+ * Add modified field
+ */
+GrapeSchema.plugin(plugin.modified);
 
 
 module.exports = mongoose.model('Grape', GrapeSchema, 'grape');

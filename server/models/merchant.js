@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     autoIncrement = require('mongoose-auto-increment'),
-    urlifyPlugin = require('./plugins.js').urlify,
+    plugin = require('./plugins.js'),
     subschema = require('./subschemes.js');
 
 var MerchantSchema = new Schema({
@@ -12,29 +12,23 @@ var MerchantSchema = new Schema({
         max: 50,
         min: 5
     },
-    url: {
-        type: String //Calculated based on name field
-    },
-    published: {
-        type: Boolean
-    },
     email: {
-        type: String
+        type: String,
+        required: true
     },
     tel: [],
     city: {
-        type: String
+        type: String,
+        required: true
     },
     country: {
-        type: String
+        type: String,
+        required: true
     },
     article: {
         type: String
     },
     region: [subschema.LocationSchema], //CountriesSchema
-    profil: {
-        type: String
-    },
     rss: {
         type: String
     },
@@ -48,17 +42,8 @@ var MerchantSchema = new Schema({
         type: String
     }, //terms of order
     wines: [subschema.MerchantWineSchema],
-    reviews: [subschema.ReviewSchema],
-    rating: [subschema.RatingSchema],
     www: {
         type: String
-    },
-    map: {},
-    created: {
-        type: Date
-    },
-    modified: {
-        type: Date
     },
     retail: {
         type: Boolean
@@ -66,7 +51,14 @@ var MerchantSchema = new Schema({
     onlineOrdering: {
         type: Boolean
     },
-    stat: {} //numberOfupdates Maybe??
+    stats: {
+        pageViews: {
+            type: Number,
+            default: 0
+        }
+    }
+}, {
+    strict: true
 });
 
 virtual = MerchantSchema.virtual('idurl');
@@ -74,6 +66,94 @@ virtual.get(function() {
     return this._id + '/' + this.url;
 });
 
-MerchantSchema.plugin(autoIncrement.plugin, 'Merchant');
-MerchantSchema.plugin(urlifyPlugin);
+/**
+ *  Transform function used to transform document for public use
+ */
+if (!CountrySchema.options.toObject) CountrySchema.options.toObject = {};
+CountrySchema.options.toObject.transform = function(doc, ret, options) {
+    delete ret._id;
+    delete ret.published;
+    delete ret.stats;
+    delete ret.addedBy;
+    delete ret.modified;
+    delete ret.review;
+};
+
+/***************************
+ *  Methods
+ ***************************/
+/**
+ *  Method to invoke after document is updated
+ *  fix dependencies
+ *  @param 
+ */
+WinerySchema.methods.onUpdate = function(cb) {
+    //name
+    function name(){
+         //update every field in wines
+
+    };
+
+};
+
+/***************
+ *  PLUGINS
+ ***************/
+
+/**
+ * increment _id field
+ */
+MerchantSchema.plugin(autoIncrement.plugin, {
+    model: 'Merchant',
+    startAt: 0,
+    incrementBy: 1,
+    prepend: 7
+});
+
+/**
+ * Add url field and write to it url based name
+ */
+MerchantSchema.plugin(plugin.urlify);
+
+/**
+ * Add reviews and topReview fields.
+ */
+MerchantSchema.plugin(plugin.review);
+
+/**
+ * Add publish field and method
+ */
+MerchantSchema.plugin(plugin.publish);
+
+/**
+ * Add picture field an picture methods
+ */
+MerchantSchema.plugin(plugin.picture);
+
+/**
+ * Add map field an map methods
+ */
+MerchantSchema.plugin(plugin.map);
+
+/**
+ * Add notified field an notified methods
+ */
+MerchantSchema.plugin(plugin.notify);
+
+/**
+ * Add page view method
+ */
+MerchantSchema.plugin(plugin.pageView);
+
+/**
+ * Add addedBy field
+ */
+MerchantSchema.plugin(plugin.addedBy);
+
+/**
+ * Add modified field
+ */
+MerchantSchema.plugin(plugin.modified);
+
+
 module.exports = mongoose.model('Merchant', MerchantSchema, 'merchant');
