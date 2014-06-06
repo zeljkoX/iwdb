@@ -28,8 +28,14 @@ var RegionSchema = new Schema({
             default: 0
         },
         numberOfWineries: {
-            type: Number,
-            default: 0
+            published: {
+                type: Number,
+                default: 0
+            },
+            unpublished: {
+                type: Number,
+                default: 0
+            }
         }
     }
 }, {

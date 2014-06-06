@@ -24,8 +24,8 @@ function Update(operation, cb) {
     };
 
 
-    this.obj.run = function(rawDoc, fields) {
-        doc.obj.runMiddleware(rawDoc, fields, doc.log, done);
+    this.obj.run = function(document) {
+        doc.obj.runMiddleware(document, doc.log, done);
     };
 
 };

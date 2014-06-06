@@ -1,7 +1,7 @@
 'use strict';
 var subscheme = require('./subschemes.js'),
     User = require('./user-wine.js'),
-    helpers = require('../helperMethods.js'),
+    helper = require('../helperMethods.js'),
     urlify = require('urlify'),
     indexOfObject = require('array-indexofobject');
 
@@ -30,6 +30,7 @@ urlify = require('urlify').create({
 
 /**
  * Plugin used to publish
+ * convention  publish method is used after admin approved or added article
  */
 exports.publish = function(schema) {
     schema.add({
@@ -38,7 +39,7 @@ exports.publish = function(schema) {
     });
 
 
-    schema.methods.publish = function(cb) {
+    schema.methods.publishBool = function(cb) {
         this.published = !this.published;
         this.save(function(err) {
             if (err) {
@@ -46,7 +47,25 @@ exports.publish = function(schema) {
             }
             return cb(true);
         });
-    }
+    };
+    schema.methods.publish = function(cb) {
+        this.published = true;
+        this.save(function(err) {
+            if (err) {
+                return cb(Error('Publish akcija neuspjesna'));
+            }
+            return cb(true);
+        });
+    };
+    schema.methods.unpublish = function(cb) {
+        this.published = false;
+        this.save(function(err) {
+            if (err) {
+                return cb(Error('unpublish akcija neuspjesna'));
+            }
+            return cb(true);
+        });
+    };
 };
 
 /**
@@ -483,18 +502,21 @@ exports.subschemaAddRemove = function(schema, fields) {
  */
 exports.addedBy = function(schema) {
     schema.add({
-        addedBy: {
-            name: {
-                type: String
-            },
-            _id: {
-                type: String
-            },
-            date: {
-                type: Date,
-                default: Date.now
-            }
+        name: {
+            type: String
+        },
+        date: {
+            type: Date,
+            default: Date.now
         }
+    });
+    schema.pre('save', function(next) {
+        if (this.isNew) {
+            this.addedBy = {
+                name: 'User'
+            };
+        }
+        next();
     });
 };
 
@@ -504,10 +526,32 @@ exports.addedBy = function(schema) {
  */
 exports.modified = function(schema) {
     schema.add({
-        modified: []
+        modified: [{
+            user: {
+                name: {
+                    type: String
+                },
+                _id: {
+                    type: String
+                }
+            },
+            date: {
+                type: Date,
+                default: Date.now
+            }
+        }]
     });
-
-    schema.methods.modify = function(user, cb) {
+    schema.pre('save', function(next) {
+        if (!this.isNew && this.isModified()) {
+            this.modified.push({
+                user: {
+                    name: 'User'
+                }
+            });
+        }
+        next();
+    });
+    /*schema.methods.modify = function(user, cb) {
         if (!user) {
             user = admin;
         }
@@ -521,5 +565,44 @@ exports.modified = function(schema) {
             }
             return cb(null);
         });
+    };*/
+};
+/**
+ * Add hooks to pre and post save
+ **/
+exports.updateMiddleware = function(schema, update) {
+    schema.pre('save', function(next) {
+        var doc = this;
+        this.clone = helper.clone(doc);
+        next();
+    });
+    schema.post('save', function(doc) {
+        // if (!this.clone.isNew) {
+        update.run(this.clone);
+        // }
+    });
+};
+
+exports.notification = function(schema, update) {
+    schema.add({
+        notifications: [{
+            msg: {
+                type: String
+            },
+            date: {
+                type: Date,
+                default: Date.now
+            },
+            viewed: {
+                type: Boolean,
+                default: false
+            }
+        }]
+    });
+    schema.methods.notify = function(data) {
+
+    };
+    schema.methods.readed = function(notification) {
+
     };
 };

@@ -1,13 +1,15 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
+    //Region = mongoose.model('Region'),
+    //Country = mongoose.model('Country'),
     autoIncrement = require('mongoose-auto-increment'),
     plugin = require('./plugins.js'),
     subschema = require('./subschemes.js'),
-    helper = require('../helperMethods.js'),
-    update = require('../update.js')('Update winery db', function(log) {
+    helper = require('../helperMethods.js');
+/*update = require('../update.js')('Update winery db', function(log) {
         console.log(log);
         console.log('Winery update fired');
-    });
+    });*/
 
 /** 
 Fields edited by user
@@ -102,7 +104,7 @@ var WinerySchema = new Schema({
     description: {
         type: String
     },
-    wines: [subschema.ListOfWinesSchema],
+    wines: [subschema.ShortWineSchema],
     media: [subschema.MediaSchema],
     details: {
         literPerYear: {
@@ -178,26 +180,17 @@ WinerySchema.methods.addMedia = function(media, cb) {
     });
 };
 /************************
- *UPDATE definition
+ *UPDATE definitions
  *
  ************************/
-//trigger to run update functions
-WinerySchema.pre('save', function(next) {
-    this.newDoc = this.isNew;
-    this.fields = this.modifiedPaths();
-    next();
-});
-WinerySchema.post('save', function(doc) {
-    if (!this.newDoc) {
-        update.run(doc, this.fields);
-    }
-});
 
 
-update.use(function(doc, fields, log, next) {
-
-    //if (doc.name.isModified()) {
-    if (fields.indexOf('name')) {
+/**
+ * on NAME change
+ */
+/*
+update.use(function(doc, log, next) {
+    if (doc.isModified('name')) {
         var action = {
             name: 'Update on field: name change',
             success: 0,
@@ -221,6 +214,66 @@ update.use(function(doc, fields, log, next) {
             });
         });
         log.actions.push(action);
+    }
+    next();
+});
+
+/**
+ * on PUBLISHED change
+ */
+/*update.use(function(doc, log, next) {
+    if (doc.isModified('published')) {
+        var action = {
+            name: 'Update on publish/unpublish',
+            success: 0,
+            failure: 0,
+            err: []
+        };
+        //TO DO something with wines
+        var promises = [];
+
+        /*  doc.wines.forEach(function(wine) {
+                var promise = Promise();
+                wine.unpublish(function(err) {
+                    if (err) {
+                        promise.reject(err);
+                    }
+                    promise.fulfill();
+                });
+                
+                return promises.push(promise);
+            });
+
+            var winePromise = new Promise().when().apply(this, promises);
+
+
+            //update region statistics
+            var regionPromise = Region.findByID(doc.region._id).exec();
+
+            regionPromise.then(function(region) {
+                var prevPublished = !doc.published;
+                if (prevPublished) {
+                    region.stats.published -= 1;
+                    region.stats.unpublished += 1;
+                } else {
+                    region.stats.published += 1;
+                    region.stats.unpublished -= 1;
+                }
+                region.save(function(err) {
+                    if (err) {
+                        regionPromise.reject(err);
+                    }
+                    regionPromise.fulfill();
+                });
+            }); //TODO
+        });
+
+    var countryPromise = Country.findByID(doc.country._id).exec();
+
+    var all = new Promise().when(winesPromise, regionPromise, countryPromise);*/
+
+//update country statistics
+/* log.actions.push(action);
     }
     next();
 });
@@ -330,6 +383,11 @@ WinerySchema.plugin(plugin.addedBy);
  * Add modified field
  */
 WinerySchema.plugin(plugin.modified);
+
+/**
+ * Update middleware
+ */
+//WinerySchema.plugin(plugin.updateMiddleware, update);
 
 /************************
  * Validate definitions

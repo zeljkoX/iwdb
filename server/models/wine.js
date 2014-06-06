@@ -1,8 +1,14 @@
 var mongoose = require('mongoose'),
+    WinerySchema = require('./winery.js'),
+    Winery = mongoose.model('Winery'),
     Schema = mongoose.Schema,
     autoIncrement = require('mongoose-auto-increment'),
     plugin = require('./plugins.js'),
-    subschema = require('./subschemes.js');
+    subschema = require('./subschemes.js'),
+    update = require('../update.js')('Update wine db', function(log) {
+        console.log(log);
+        console.log('Wine update fired');
+    });
 
 
 /** 
@@ -149,6 +155,33 @@ var numberOfAwards = WineSchema.virtual('numberOfAwards');
 numberOfAwards.get(function() {
     return this.awards.length;
 });
+/**********************
+ * New doc
+ **********************/
+update.use(function(doc, log, next) {
+    if (doc.isNew) {
+        Winery.findOne({
+                name: doc.winery.name
+            },
+            function(err, w) {
+                console.log(w._id);
+                w.wines.push({
+                    name: doc.name
+                });
+                w.name = 'Ana';
+                w.markModified();
+                w.save(function(err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log('wine subdoc saved');
+                    console.log(w.wines.length);
+                });
+            });
+    }
+    next();
+});
+
 
 /***************************
  *  Methods
@@ -160,6 +193,7 @@ numberOfAwards.get(function() {
 /***************************
  *  Statics
  ***************************/
+
 
 WineSchema.statics.searchByWinery = function(name, cb) {
     this.find({
@@ -225,5 +259,10 @@ WineSchema.plugin(plugin.addedBy);
  * Add modified field
  */
 WineSchema.plugin(plugin.modified);
+
+
+
+WineSchema.plugin(plugin.updateMiddleware, update);
+
 
 module.exports = mongoose.model('Wine', WineSchema, 'wine');

@@ -16,6 +16,7 @@
     "method-override": "~1.0.0",
     "mongoose": "~3.8.8",
     "mongoose-auto-increment": "^3.0.2",
+    "mongoose-when": "0.0.1",
     "morgan": "~1.0.0",
     "passport": "~0.2.0",
     "passport-local": "~0.1.6",
