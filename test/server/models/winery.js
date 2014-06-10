@@ -2,13 +2,17 @@
 
 var should = require('should'),
     mongoose = require('mongoose'),
-    Winery = mongoose.model('Winery');
+    Promise = mongoose.Promise,
+    Winery = mongoose.model('Winery'),
+    Country = mongoose.model('Country'),
+    Region = mongoose.model('Region'),
+    data = require('../data.js');
 
 var winery;
-//mongoose.createConnection('mongodb://localhost/iwdb-test');
+
 
 xdescribe('Winery Model', function() {
-    before(function(done) {
+   /* before(function(done) {
         winery = new Winery({
             name: 'Vukoje vinarija',
         });
@@ -21,17 +25,84 @@ xdescribe('Winery Model', function() {
     afterEach(function(done) {
         Winery.remove().exec();
         done();
-    });
+    });*/
 
     it('should contain 0 documents', function(done) {
+        Winery.remove().exec();
         Winery.find({}, function(err, wineries) {
+            should.not.exists(err);
+            console.log(wineries);
             wineries.should.have.length(0);
             done();
         });
     });
-    it('should be able to save without problems', function(done) {
-        winery.save(done);
+     it('should populate country', function(done) {
+        data.populateCountry(done);
+        //set statistics{region, country}
     });
+     it('should populate region', function(done) {
+        data.populateRegion(done);
+        //set statistics{region, country}
+    });
+    it('should menage dependencies on create', function(done) {
+        this.timeout(5000);
+        var create = new Promise;
+        winery = new Winery({
+            name: 'Vukoje',
+            established: 1987,
+            published: true,
+            country: {
+                name: 'Bosnia and Herzegovina'
+                },
+            region:{
+                name: 'Herzegovina'
+            }
+        });
+        winery.save(function(err){
+            should.not.exists(err);
+            winery.on('update', function(){
+                 create.resolve();
+            });
+        });
+        create.then(function(){
+            var regionPromise = Region.findById(winery.region._id, function(err,region){
+                should.not.exists(err);
+                region.stats.numberOfWineries.should.be.equal(1);
+                regionPromise.resolve();
+            }).exec();
+
+            var countryPromise = Country.findById(winery.country._id, function(err,country){
+                should.not.exists(err);
+                country.stats.numberOfWineries.should.be.equal(1);
+                countryPromise.resolve();
+            }).exec();
+
+            var all = new Promise().when(countryPromise, regionPromise);
+            all.addBack(function(err){
+                should.not.exists(err);
+                done();
+            });
+
+        });
+        //set statistics{region, country}
+    });
+    it('should menage dependencies on change: name', function() {
+        //update every wine, tourist, offer, merchant
+    });
+     it('should menage dependencies on unpublish', function() {
+        //unpublish every wine
+        //update statistics{region, country}
+        
+    });
+     it('should menage dependencies on publish', function() {
+        //update every wine
+        //update statistics{region, country}
+    });
+     it('should menage dependencies delete', function() {
+        //delete every wine
+        //if there are records to merchant and tourist/offer unpublish and set notification
+    });
+    /*
     it('should have field name set up properly', function(done) {
         winery.save();
         winery.name.should.eql('Vukoje vinarija');
@@ -142,7 +213,7 @@ xdescribe('Winery Model', function() {
             winery.awards.should.have.length(2);
             done();
         });
-    });
+    });*/
 
 
     /* it('should have field name set up properly', function(done) {

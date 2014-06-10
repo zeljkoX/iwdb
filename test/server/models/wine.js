@@ -7,7 +7,7 @@ var should = require('should'),
 var wine;
 
 xdescribe('Wine Model', function() {
-    before(function(done) {
+    /*before(function(done) {
         wine = new Wine({
             name: 'Vranac',
             vintage: 2012,
@@ -32,7 +32,7 @@ xdescribe('Wine Model', function() {
     afterEach(function(done) {
         Wine.remove().exec();
         done();
-    });
+    });*/
 
     it('should contain 0 documents', function(done) {
         Wine.find({}, function(err, wines) {
@@ -40,7 +40,32 @@ xdescribe('Wine Model', function() {
             done();
         });
     });
-    it('should be able to save without problems', function(done) {
+
+    it('should menage dependencies on create', function(done) {
+        //add to winery
+        //set statistics{region, country}
+    });
+    it('should menage dependencies on change: name', function(done) {
+        //update wine and winery record if published
+    });
+     it('should menage dependencies on unpublish', function(done) {
+        //unpublish wine
+        //delete from winery page
+        //?? merchant
+        //update statistics{grape}
+        
+    });
+     it('should menage dependencies on publish', function(done) {
+        //publish wine if winery is published
+        //add to winery
+        //update statistics{grape}
+    });
+     it('should menage dependencies delete', function(done) {
+        //delete every wine 
+        //if there are records to merchant and tourist/offer unpublish and set notification
+    });
+
+    /*it('should be able to save without problems', function(done) {
         wine.save(done);
     });
     it('should add award to wine', function(done) {
@@ -88,6 +113,6 @@ xdescribe('Wine Model', function() {
 
     xit('should ', function(done) {
 
-    });
+    });*/
 
 });

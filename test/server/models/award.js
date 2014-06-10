@@ -8,7 +8,7 @@ var award;
 //mongoose.createConnection('mongodb://localhost/iwdb-test');
 
 xdescribe('Award Model', function() {
-    before(function(done) {
+    /*before(function(done) {
         award = new Award({
             name: 'Decanter',
             location: 'Trebinje'
@@ -22,7 +22,7 @@ xdescribe('Award Model', function() {
     afterEach(function(done) {
         Award.remove().exec();
         done();
-    });
+    });*/
 
     it('should contain 0 documents', function(done) {
         Award.find({}, function(err, awards) {
@@ -30,6 +30,25 @@ xdescribe('Award Model', function() {
             done();
         });
     });
+
+    it('should menage dependencies on create', function(done) {
+
+    });
+    it('should menage dependencies on change: name', function(done) {
+        //update every wine
+    });
+     it('should menage dependencies on unpublish', function(done) {
+        //delete record from every wine
+        
+    });
+     it('should menage dependencies on publish', function(done) {
+        //add records to every wine
+    });
+     it('should menage dependencies delete', function(done) {
+        //delete records from every wine
+    });
+    /*
+
     it('should be able to save without problems', function(done) {
         award.save(done);
     });
@@ -136,4 +155,5 @@ xdescribe('Award Model', function() {
             done();
         });
     });
+*/
 });

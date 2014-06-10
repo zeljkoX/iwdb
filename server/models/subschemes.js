@@ -25,7 +25,8 @@ exports.ShortWineSchema = new Schema({
     name: {
         type: String,
         required: true
-    }
+    },
+    _id: {type: String}
 });
 
 

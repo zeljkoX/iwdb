@@ -9,6 +9,22 @@ var mongoose = require('mongoose'),
 /**
  * Populate database with sample application data
  */
+var vukoje = [{
+    name: 'Vukoje',
+    established: 1987,
+    country: {
+        name: 'BiH',
+        republic: 'RS',
+        _id: 'ddddd'
+    },
+    region: {
+        name: 'Hercegovina',
+        _id: 'hercegovina'
+    }
+
+}];
+
+
 var wineries = [{
     name: 'Vukoje',
     established: 1987,
@@ -68,20 +84,59 @@ var wines = [{
     volume: [0.750],
     wineType: 'white',
     published: true
+},
+{
+    name: 'Vranac',
+    vintage: 2010,
+    winery: {
+        name: 'Vukoje',
+        country: 'BIH'
+    },
+    alc: 12,
+    volume: [0.750],
+    wineType: 'white',
+    published: true
+},
+{
+    name: 'Merlot',
+    vintage: 2010,
+    winery: {
+        name: 'Vukoje',
+        country: 'BIH'
+    },
+    alc: 12,
+    volume: [0.750],
+    wineType: 'white',
+    published: true
+},
+{
+    name: 'Souvignone',
+    vintage: 2010,
+    winery: {
+        name: 'Vukoje',
+        country: 'BIH'
+    },
+    alc: 12,
+    volume: [0.750],
+    wineType: 'white',
+    published: true
 }];
 //Clear old things, then add things in
-
-Winery.create(wineries, function() {
+/*Winery.find({}).remove(function() {
+Winery.create(vukoje, function() {
     console.log('finished populating wineries');
 });
-
-
-
-Wine.create(wines, function() {
-    console.log('finished populating wines');
 });
 
 setTimeout(function() {
+Wine.find({}).remove(function() {   
+Wine.create(wines, function() {
+    console.log('finished populating wines');
+});
+});
+}, 1000);
+*/
+/*setTimeout(function() {
     Winery.findOne({
         name: 'Vukoje'
     }, function(err, doc) {
@@ -97,35 +152,14 @@ setTimeout(function() {
             console.log(doc);
         });
     });
-}, 2000);
+}, 2000);*/
 
 
-setTimeout(function() {
+/*setTimeout(function() {
     Winery.findOne({
         name: 'Vukoje'
     }, function(err, doc) {
-
-
         console.log(doc);
-
     });
-}, 5000);
+}, 5000);*/
 
-
-var log = new Log({
-    operation: 'test'
-});
-
-log.save(function(err) {
-    if (err) {
-        console('Log err');
-        Log.find({
-            operation: 'test'
-        }, function(err, log) {
-            log.operation = 'zeljko';
-            log.save(function(err) {
-                console.log(err);
-            });
-        });
-    }
-});

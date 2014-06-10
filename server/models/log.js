@@ -32,4 +32,4 @@ var LogSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Log', LogSchema, 'logs');
+module.exports = mongoose.model('Log', LogSchema, 'log');

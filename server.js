@@ -4,7 +4,7 @@ var express = require('express'),
     path = require('path'),
     fs = require('fs'),
     mongoose = require('mongoose'),
-    //mongooseWhen = require('mongoose-when'),
+    mongooseWhen = require('mongoose-when'),
     autoIncrement = require('mongoose-auto-increment');
 
 /**

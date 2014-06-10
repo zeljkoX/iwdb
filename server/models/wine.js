@@ -1,7 +1,12 @@
 var mongoose = require('mongoose'),
     WinerySchema = require('./winery.js'),
+    CountrySchema = require('./country'),
+    RegionSchema = require('./region'),
+    Country = mongoose.model('Country'),
+    Region = mongoose.model('Region'),
     Winery = mongoose.model('Winery'),
     Schema = mongoose.Schema,
+    Promise = mongoose.Promise,
     autoIncrement = require('mongoose-auto-increment'),
     plugin = require('./plugins.js'),
     subschema = require('./subschemes.js'),
@@ -58,14 +63,24 @@ var WineSchema = new Schema({
         },
         _id: {
             type: String
-        },
-        country: {
+        }
+    },
+    country: {
+        name: {
             type: String
         },
-        state: {
+        abbr: {
             type: String
         },
-        region: {
+        _id: {
+            type: String
+        }
+    },
+    region: {
+        name: {
+            type: String
+        },
+        _id: {
             type: String
         }
     },
@@ -131,12 +146,7 @@ var WineSchema = new Schema({
     },
     merchants: [subschema.ShortMerchantSchema],
     news: [], //news related to this document TO DO
-    stats: {
-        pageViews: {
-            type: Number,
-            default: 0
-        }
-    },
+    stats: {}
 }, {
     strict: true
 });
@@ -155,31 +165,91 @@ var numberOfAwards = WineSchema.virtual('numberOfAwards');
 numberOfAwards.get(function() {
     return this.awards.length;
 });
-/**********************
- * New doc
- **********************/
+
+
+/************************
+ * pre save
+ *
+ ************************/
+
+/**
+ * populate winery, country and region _id
+ */
+WineSchema.pre('save', function(next) {
+    var doc = this;
+    if (doc.isNew) {
+        if (doc.country && doc.country.name && !doc.country._id) {
+            var countryPromise = Country.findOne({
+                name: doc.country.name
+            }).exec();
+            countryPromise.then(function(country) {
+                if (country) {
+                    doc.country._id = country._id;
+                } else throw new Error('Country not found');
+            });
+        }
+        if (doc.region && doc.region.name && !doc.region._id) {
+            var regionPromise = Region.findOne({
+                name: doc.region.name
+            }).exec();
+            regionPromise.then(function(region) {
+                if (region) {
+                    doc.region._id = region._id;
+                } else throw new Error('Region not found');
+            });
+        }
+        if (doc.winery && doc.winery.name && !doc.winery._id) {
+            var wineryPromise = Winery.findOne({
+                name: doc.winery.name
+            }).exec();
+            wineryPromise.then(function(winery) {
+                if (winery) {
+                    doc.winery._id = winery._id;
+                } else throw new Error('Winery not found');
+            });
+        }
+
+        var all = new Promise().when(countryPromise, regionPromise, wineryPromise);
+        all.addBack(function(err) {
+            //console.log(doc);
+            if (err) {
+                console.log('Error');
+                next(err);
+            } else {
+                //console.log(doc);
+                next();
+            }
+        });
+    } else {
+        next();
+    }
+});
+
+/************************
+ *UPDATE definitions
+ *
+ ************************/
+
+//new
 update.use(function(doc, log, next) {
     if (doc.isNew) {
         Winery.findOne({
                 name: doc.winery.name
             },
             function(err, w) {
-                console.log(w._id);
                 w.wines.push({
-                    name: doc.name
+                    name: doc.name,
+                    _id: doc._id
                 });
-                w.name = 'Ana';
-                w.markModified();
                 w.save(function(err) {
                     if (err) {
                         console.log(err);
+                        next(doc);
                     }
-                    console.log('wine subdoc saved');
-                    console.log(w.wines.length);
                 });
             });
     }
-    next();
+
 });
 
 
@@ -189,17 +259,15 @@ update.use(function(doc, log, next) {
 
 
 
-
 /***************************
  *  Statics
  ***************************/
-
-
-WineSchema.statics.searchByWinery = function(name, cb) {
+WineSchema.statics.searchByName = function(name, cb) {
     this.find({
-        name: name // winery.name
+        name: name //country.name
     }, cb);
 };
+
 
 /***************
  *  PLUGINS

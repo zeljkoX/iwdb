@@ -23,18 +23,6 @@ var GrapeSchema = new Schema({
     country: [subschema.LocationSchema], //name, republic
     kalem: [subschema.ShortGrapeSchema],
     stats: {
-        numberOfWines: {
-            type: Number,
-            default: 0
-        },
-        numberOfWineries: {
-            type: Number,
-            default: 0
-        },
-        pageViews: {
-            type: Number,
-            default: 0
-        }
     } //statistic   perhaps number of wineris with this grape
 }, {
     strict: true

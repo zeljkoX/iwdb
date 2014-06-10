@@ -1,15 +1,18 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    //Region = mongoose.model('Region'),
-    //Country = mongoose.model('Country'),
+    Promise = mongoose.Promise,
+    RegionSchema = require('./region.js'), //not indexed
+    CountrySchema = require('./country.js'),
+    Region = mongoose.model('Region'),
+    Country = mongoose.model('Country'),
     autoIncrement = require('mongoose-auto-increment'),
     plugin = require('./plugins.js'),
     subschema = require('./subschemes.js'),
     helper = require('../helperMethods.js');
-/*update = require('../update.js')('Update winery db', function(log) {
-        console.log(log);
-        console.log('Winery update fired');
-    });*/
+update = require('../update.js')('Update winery db', function(log) {
+    console.log(log);
+    console.log('Winery update fired');
+});
 
 /** 
 Fields edited by user
@@ -52,7 +55,7 @@ var WinerySchema = new Schema({
         name: {
             type: String
         },
-        republic: {
+        state: {
             type: String
         }
     },
@@ -131,10 +134,6 @@ var WinerySchema = new Schema({
         numberOfReviews: {
             type: Number,
             default: 0
-        },
-        pageViews: {
-            type: Number,
-            default: 0
         }
     }
 }, {
@@ -180,10 +179,115 @@ WinerySchema.methods.addMedia = function(media, cb) {
     });
 };
 /************************
+ * pre save
+ *
+ ************************/
+
+/**
+ * populate winery country id and region
+ */
+WinerySchema.pre('save', function(next) {
+    var doc = this;
+    if (doc.isNew) {
+        if (doc.country && doc.country.name && !doc.country._id) {
+            var countryPromise = Country.findOne({
+                name: doc.country.name
+            }).exec();
+            countryPromise.then(function(country) {
+                if (country) {
+                    doc.country._id = country._id;
+                } else throw new Error('not found');
+            });
+        }
+        if (doc.region && doc.region.name && !doc.region._id) {
+            var regionPromise = Region.findOne({
+                name: doc.region.name
+            }).exec();
+            regionPromise.then(function(region) {
+                if (region) {
+                    doc.region._id = region._id;
+                } else new Error('not found');
+            });
+        }
+        var all = new Promise().when(countryPromise, regionPromise);
+
+        all.addBack(function(err) {
+            if (err) {
+                console.log('Error');
+                next(err);
+            }
+            console.log(doc);
+            next();
+        });
+    } else {
+        next();
+    }
+});
+
+/************************
  *UPDATE definitions
  *
  ************************/
 
+/**
+ * On create
+ */
+update.use(function(doc, log, next) {
+    if (doc.isNew) {
+        statsName = doc.published ? 'published' : 'unpublished';
+        var action = log.getAction('Create a Winery. Region and Country population');
+        if (doc.region && doc.region._id) {
+            var regionPromise = Region.findOne({
+                _id: doc.region._id
+            }, function(err, region) {
+                if (err) {
+                    action.reject(err);
+                    regionPromise.reject(err);
+                }
+                region.addWinery(function(err) {
+                    if (err) {
+                        action.reject(err);
+                        regionPromise.reject(err);
+                    }
+                    action.resolve();
+                    regionPromise.resolve();
+                });
+            }).exec();
+        }
+        var countryPromise = Country.findOne({
+            _id: doc.country._id
+        }, function(err, country) {
+            if (err) {
+                action.reject(err);
+                return countryPromise.reject(err);
+            }
+            country.addWinery(function(err) {
+                if (err) {
+                    action.reject(err);
+                    return countryPromise.reject(err);
+                }
+                action.resolve();
+                countryPromise.resolve();
+            });
+
+        }).exec();
+
+        var resolve = new Promise().when(regionPromise, countryPromise);
+
+        resolve.addBack(function(err) {
+            log.actions.push(action.getData());
+            log.save(function(err) {
+                if (err) {
+                    console.log('err');
+                }
+            });
+            next(doc);
+
+        });
+    } else {
+        next(doc);
+    }
+});
 
 /**
  * on NAME change
@@ -283,28 +387,32 @@ update.use(function(doc, log, next) {
  *  Method to remove winery and all its dependecies
  *  @param
  */
-WinerySchema.methods.removeFromDb = function(cb) {
 
-};
 /***************************
  *  Statics
  ***************************/
 /**
  *  Transform function used to transform document for public use
  */
-if (!WinerySchema.options.toObject) WinerySchema.options.toObject = {};
+/*if (!WinerySchema.options.toObject) WinerySchema.options.toObject = {};
 WinerySchema.options.toObject.transform = function(doc, ret, options) {
     delete ret._id;
     delete ret.publish;
     delete reviews;
     delete news;
 
-};
+};*/
 
 virtual = WinerySchema.virtual('idurl');
 virtual.get(function() {
     return this._id + '/' + this.url;
 });
+
+WinerySchema.statics.searchByName = function(name, cb) {
+    this.find({
+        name: name //country.name
+    }, cb);
+};
 
 WinerySchema.statics.searchByCountry = function(name, cb) {
     this.find({
@@ -387,7 +495,7 @@ WinerySchema.plugin(plugin.modified);
 /**
  * Update middleware
  */
-//WinerySchema.plugin(plugin.updateMiddleware, update);
+WinerySchema.plugin(plugin.updateMiddleware, update);
 
 /************************
  * Validate definitions

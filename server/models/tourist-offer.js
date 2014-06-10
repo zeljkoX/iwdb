@@ -166,4 +166,4 @@ OfferSchema.plugin(plugin.modified);
 
 
 
-module.exports = mongoose.model('Offer', OfferSchema, 'offers');
+module.exports = mongoose.model('Offer', OfferSchema, 'offer');

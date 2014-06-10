@@ -8,7 +8,7 @@ var grape;
 //mongoose.createConnection('mongodb://localhost/iwdb-test');
 
 xdescribe('Grape Model', function() {
-    before(function(done) {
+  /*  before(function(done) {
         grape = new Grape({
             name: 'Pinot Noir'
         });
@@ -21,7 +21,7 @@ xdescribe('Grape Model', function() {
     afterEach(function(done) {
         Grape.remove().exec();
         done();
-    });
+    });*/
 
     it('should contain 0 documents', function(done) {
         Grape.find({}, function(err, grapes) {
@@ -29,7 +29,24 @@ xdescribe('Grape Model', function() {
             done();
         });
     });
-    it('should be able to save without problems', function(done) {
+
+     it('should menage dependencies on create', function(done) {
+        //add to winery
+
+    });
+    it('should menage dependencies on change: name', function(done) {
+        //update wines, wineries
+    });
+
+     it('should menage dependencies delete', function(done) {
+        //delete only if number of wines is equal to zero
+        //delete from wines
+        //delete from winery
+    });
+
+
+
+   /* it('should be able to save without problems', function(done) {
         grape.save(done);
     });
     it('should increase page views', function(done) {
@@ -57,5 +74,5 @@ xdescribe('Grape Model', function() {
             grape.stats.numberOfWineries.should.equal(1);
             done();
         });
-    });
+    });*/
 });

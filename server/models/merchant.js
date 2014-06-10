@@ -52,10 +52,6 @@ var MerchantSchema = new Schema({
         type: Boolean
     },
     stats: {
-        pageViews: {
-            type: Number,
-            default: 0
-        }
     }
 }, {
     strict: true

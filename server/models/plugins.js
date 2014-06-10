@@ -48,20 +48,11 @@ exports.publish = function(schema) {
             return cb(true);
         });
     };
-    schema.methods.publish = function(cb) {
-        this.published = true;
+    schema.methods.publish = function(bool, cb) {
+        this.published = bool;
         this.save(function(err) {
             if (err) {
                 return cb(Error('Publish akcija neuspjesna'));
-            }
-            return cb(true);
-        });
-    };
-    schema.methods.unpublish = function(cb) {
-        this.published = false;
-        this.save(function(err) {
-            if (err) {
-                return cb(Error('unpublish akcija neuspjesna'));
             }
             return cb(true);
         });
@@ -577,9 +568,7 @@ exports.updateMiddleware = function(schema, update) {
         next();
     });
     schema.post('save', function(doc) {
-        // if (!this.clone.isNew) {
         update.run(this.clone);
-        // }
     });
 };
 

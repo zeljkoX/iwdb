@@ -25,7 +25,7 @@ xdescribe('Update function', function() {
     });
 
     afterEach(function(done) {
-        Winery.remove().exec();
+        //Winery.remove().exec();
         done();
     });
     it('should have properties use and run', function() {
@@ -35,17 +35,17 @@ xdescribe('Update function', function() {
     });
 
     it('should add to stack function', function() {
-        obj.use(function(doc, log, next) {
+        obj.use(function(doc, fields, log, next) {
             count++;
             count.should.equal(1)
             next();
         });
-        obj.use(function(doc, log, next) {
+        obj.use(function(doc, fields, log, next) {
             count++;
             count.should.equal(2)
             next();
         });
-        obj.use(function(doc, log, next) {
+        obj.use(function(doc, fields, log, next) {
             count++;
             count.should.equal(3)
             next();

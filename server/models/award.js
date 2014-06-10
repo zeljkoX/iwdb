@@ -50,10 +50,6 @@ var AwardSchema = new Schema({
         required: true
     },
     stats: {
-        pageViews: {
-            type: Number,
-            default: 0
-        }
     }
 }, {
     strict: true
@@ -265,4 +261,4 @@ AwardSchema.plugin(plugin.addedBy);
 AwardSchema.plugin(plugin.modified);
 
 
-module.exports = mongoose.model('Award', AwardSchema, 'awards');
+module.exports = mongoose.model('Award', AwardSchema, 'award');

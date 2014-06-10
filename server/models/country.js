@@ -29,9 +29,11 @@ var CountrySchema = new Schema({
         enum: ['Europe', 'Asia', 'America', 'Australia', 'Africa'],
         required: true
     },
-    abbr: [], //abbrevatios 
+    abbr: {
+        type: String
+    }, //abbrevatios 
     regions: [subschema.ShortRegionSchema],
-    republic: [], //Names of Republics
+    state: [], //Names of Republics
     article: {
         type: String
     },
@@ -41,9 +43,9 @@ var CountrySchema = new Schema({
     merchant: [subschema.ShortMerchantSchema],
     tourist: [subschema.ShortTouristSchema],
     stats: {
-        pageViews: {
-            type: Number,
-            default: 0
+        numberOfWineries: {
+                type: Number,
+                default: 0
         }
     }
 }, {
@@ -55,14 +57,14 @@ CountrySchema.set('versionKey', false);
 /**
  *  Transform function used to transform document for public use
  */
-if (!CountrySchema.options.toObject) CountrySchema.options.toObject = {};
+/*if (!CountrySchema.options.toObject) CountrySchema.options.toObject = {};
 CountrySchema.options.toObject.transform = function(doc, ret, options) {
     delete ret._id;
     delete ret.published;
     delete ret.stats;
     delete ret.addedBy;
     delete ret.modified;
-};
+};*/
 
 /***************************
  *  Methods
@@ -73,9 +75,8 @@ CountrySchema.options.toObject.transform = function(doc, ret, options) {
  *
  *  @param {Array} wines
  */
-CountrySchema.methods.addWinery = function(winery, cb) {
-    this.wineries.addToSet(winery);
-
+CountrySchema.methods.addWinery = function(cb) {
+        this.stats.numberOfWineries +=1;
     this.save(function(err) {
         if (err) {
             return cb(CountryError('Winery not added'));
@@ -189,14 +190,21 @@ CountrySchema.methods.removeRegion = function(region, cb) {
  *  Statics
  ***************************/
 CountrySchema.statics.searchByName = function(name, cb) {
-    this.find({
+    return this.find({
         name: name
-    }, cb);
+    }, cb).exec();
 };
 
 /***************
  *  PLUGINS
  ***************/
+/**
+ * increment _id field
+ */
+CountrySchema.plugin(autoIncrement.plugin, {
+    model: 'Country',
+    prepend: 7
+});
 
 /**
  * Add url field and write to it url based name
@@ -224,4 +232,4 @@ CountrySchema.plugin(plugin.publish);
 CountrySchema.plugin(plugin.modified);
 
 
-module.exports = mongoose.model('Country', CountrySchema, 'countries');
+module.exports = mongoose.model('Country', CountrySchema, 'country');

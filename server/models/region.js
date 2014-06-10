@@ -1,9 +1,15 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
+    CountrySchema = require('./country.js'),
+    Country = mongoose.model('Country'),
     subschema = require('./subschemes.js'),
     plugin = require('./plugins.js'),
     autoIncrement = require('mongoose-auto-increment'),
-    helper = require('../helperMethods.js');
+    helper = require('../helperMethods.js'),
+    update = require('../update.js')('Add region', function(log) {
+        console.log(log);
+        console.log('Region update fired');
+    });
 
 var Region = helper.Error('Region');
 
@@ -15,27 +21,25 @@ var RegionSchema = new Schema({
         index: true
     },
     country: {
-        type: String,
-        required: true
+        name: {
+            type: String,
+            required: true
+        },
+        _id: {
+            type: String
+        },
+        test: {
+            type: String
+        }
     },
     article: {
         type: String
     },
     media: [subschema.MediaSchema],
     stats: {
-        pageViews: {
+        numberOfWineries: {
             type: Number,
             default: 0
-        },
-        numberOfWineries: {
-            published: {
-                type: Number,
-                default: 0
-            },
-            unpublished: {
-                type: Number,
-                default: 0
-            }
         }
     }
 }, {
@@ -53,9 +57,8 @@ RegionSchema.set('versionKey', false);
  *
  *  @param {Array} wines
  */
-RegionSchema.methods.addWinery = function(winery, cb) {
-    this.wineries.addToSet(winery);
-
+RegionSchema.methods.addWinery = function(cb) {
+    this.stats.numberOfWineries += 1;
     this.save(function(err) {
         if (err) {
             return cb(RegionError('Winery not added'));
@@ -63,14 +66,15 @@ RegionSchema.methods.addWinery = function(winery, cb) {
         return cb(null);
     });
 };
-
-RegionSchema.methods.removeWinery = function(winery, cb) {
-    var doc = this;
-    doc.wineries.id(winery._id).remove(function(err) {
-        if (err) {
-            return cb(RegionError('Winery not deleted'));
+/*
+RegionSchema.methods.removeWinery = function(published, cb) {
+      if(published){
+            this.stats.numberOfWineries.published +=1;
         }
-        doc.save(function(err) {
+        else{
+            this.stats.numberOfWineries.unpublished +=1;
+        }
+        this.save(function(err) {
             if (err) {
                 return cb(RegionError('Winery not deleted'));
             }
@@ -79,16 +83,141 @@ RegionSchema.methods.removeWinery = function(winery, cb) {
     });
 
 };
-
+*/
 
 /***************************
  *  Statics
  ***************************/
-RegionSchema.statics.searchByName = function(name, cb) {
-    this.find({
+RegionSchema.statics.findByName = function(name) {
+    return this.find({
         name: name
-    }, cb);
+    }).exec();
 };
+
+
+RegionSchema.pre('save', function(next) {
+    var doc = this;
+    if (doc.isNew) {
+        if (doc.country && doc.country.name && !doc.country._id) {
+            Country.findOne({
+                name: doc.country.name
+            }, function(err, country) {
+                if (err) {
+                    console.log(err);
+                    return next(Error('Country not found'));
+                }
+                doc.country._id = country._id;
+                next();
+            });
+        }
+    } else {
+        next();
+    }
+});
+
+/************************
+ *UPDATE definitions
+ *
+ ************************/
+
+/**
+ * On create
+ */
+update.use(function(doc, log, next) {
+    if (doc.isNew) {
+        statsName = doc.published ? 'published' : 'unpublished';
+        var action = new log.getAction('Create new Region');
+
+        var countryPromise = Country.findByID(doc.country._id, function(err, country) {
+            if (err) {
+                action.reject(err);
+                return countryPromise.reject(err);
+            }
+            country.addRegion({
+                name: doc.name,
+                _id: doc._id
+            }, function(err) {
+                if (err) {
+                    action.reject(err);
+                    return countryPromise.reject(err);
+                }
+                action.resolve();
+                countryPromise.resolve();
+            });
+        }).exec();
+
+
+        countryPromise.addBack(function(err) {
+            console.log('Add region success');
+            log.actions.push(action);
+            log.save();
+            next();
+        });
+    } else {
+        next();
+    }
+});
+
+/**
+ * On name change
+ */
+update.use(function(doc, log, next) {
+    if (doc.isModified('name')) {
+        console.log('name update not fired');
+        var action = new log.getAction('Region: change name');
+
+        var countryPromise = Country.findByID(doc.country._id).exec();
+
+        countryPromise.then(function(country) {
+            if (!country) {
+                return new Error('Country not found');
+            }
+            region = country.region.id(doc._id);
+            region.name = doc.name;
+            region.save(function() {
+                if (err) {
+                    action.reject(err);
+                    countryPromise.reject(err);
+                }
+                action.resolve();
+                countryPromise.resolve();
+            });
+        });
+
+        var winePromise = Wine.update({
+            region: {
+                _id: doc._id
+            }
+        }, {
+            region: {
+                name: doc.region.name
+            }
+        }, {
+            multi: true
+        }).exec();
+
+        winePromise.then(function(err, numberAffected, raw) {
+            if (err) {
+                action.reject(err);
+                winePromise.reject(err);
+            }
+            console.log('The number of updated documents was %d', numberAffected);
+            console.log('The raw response from Mongo was ', raw);
+            action.resolve(numberAffected);
+            winePromise.resolve();
+        });
+
+        var all = new Promise().when(countryPromise, winePromise);
+        all.addBack(function(err) {
+            console.log('Add region success');
+            log.actions.push(action);
+            log.save();
+            next(doc);
+        });
+    } else {
+        next();
+    }
+});
 
 /***************
  *  PLUGINS
@@ -130,4 +259,4 @@ RegionSchema.plugin(plugin.publish);
 RegionSchema.plugin(plugin.modified);
 
 
-module.exports = mongoose.model('Region', RegionSchema, 'countries');
+module.exports = mongoose.model('Region', RegionSchema, 'region');

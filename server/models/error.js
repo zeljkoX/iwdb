@@ -25,4 +25,4 @@ var ErrorSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Error', ErrorSchema, 'errors');
+module.exports = mongoose.model('Error', ErrorSchema, 'error');

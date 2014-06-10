@@ -294,4 +294,4 @@ UserSchema.methods.addTourist = function(wines, cb) {
 
 };
 
-module.exports = mongoose.model('Account', UserSchema, 'accounts');
+module.exports = mongoose.model('Account', UserSchema, 'account');
