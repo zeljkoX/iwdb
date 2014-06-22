@@ -1,10 +1,15 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     Promise = mongoose.Promise,
-    RegionSchema = require('./region.js'), //not indexed
+    WineSchema = require('./wine.js'), 
+    WinerySchema = require('./winery.js');
+    console.log(mongoose.models);
+    var RegionSchema = require('./region.js'), //not indexed
     CountrySchema = require('./country.js'),
+    WineSchema = require('./wine.js'),
     Region = mongoose.model('Region'),
     Country = mongoose.model('Country'),
+    Wine = mongoose.model('Wine'),
     autoIncrement = require('mongoose-auto-increment'),
     plugin = require('./plugins.js'),
     subschema = require('./subschemes.js'),
@@ -192,8 +197,8 @@ WinerySchema.pre('save', function(next) {
         if (doc.country && doc.country.name && !doc.country._id) {
             var countryPromise = Country.findOne({
                 name: doc.country.name
-            }).exec();
-            countryPromise.then(function(country) {
+            }).exec()
+            .then(function(country) {
                 if (country) {
                     doc.country._id = country._id;
                 } else throw new Error('not found');
@@ -202,8 +207,8 @@ WinerySchema.pre('save', function(next) {
         if (doc.region && doc.region.name && !doc.region._id) {
             var regionPromise = Region.findOne({
                 name: doc.region.name
-            }).exec();
-            regionPromise.then(function(region) {
+            }).exec()
+            .then(function(region) {
                 if (region) {
                     doc.region._id = region._id;
                 } else new Error('not found');
@@ -216,7 +221,6 @@ WinerySchema.pre('save', function(next) {
                 console.log('Error');
                 next(err);
             }
-            console.log(doc);
             next();
         });
     } else {
@@ -232,7 +236,7 @@ WinerySchema.pre('save', function(next) {
 /**
  * On create
  */
-update.use(function(doc, log, next) {
+update.use(function(doc,modified,  log, next) {
     if (doc.isNew) {
         statsName = doc.published ? 'published' : 'unpublished';
         var action = log.getAction('Create a Winery. Region and Country population');
@@ -293,7 +297,7 @@ update.use(function(doc, log, next) {
  * on NAME change
  */
 /*
-update.use(function(doc, log, next) {
+update.use(function(doc,modified,  log, next) {
     if (doc.isModified('name')) {
         var action = {
             name: 'Update on field: name change',

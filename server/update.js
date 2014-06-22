@@ -1,4 +1,5 @@
 var mongoose = require('mongoose'),
+    Document = mongoose.Document,
     LogSchema = require('./models/log.js'),
     Log = mongoose.model('Log'),
     attachMiddleware = require('attach-middleware');
@@ -72,6 +73,16 @@ function Update(operation, cb) {
     Action.prototype.getData = function(){
         return this.data;
     };
+
+/**
+* Monkey patch for is modified method
+*/
+Document.prototype.isModCustom = function(field){
+    if(!field){
+        return false;
+    }
+    return !!~this.modified.indexOf(field);
+}
 
 module.exports = function(operation, cb) {
     var instance = new Update(operation, cb);

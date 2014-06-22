@@ -31,8 +31,16 @@ var CountrySchema = new Schema({
     },
     abbr: {
         type: String
-    }, //abbrevatios 
-    regions: [subschema.ShortRegionSchema],
+    }, 
+    regions: [{
+        name: {
+            type: String,
+            required: true
+        },
+        _id: {
+            type: String
+        }
+    }],
     state: [], //Names of Republics
     article: {
         type: String
@@ -44,8 +52,8 @@ var CountrySchema = new Schema({
     tourist: [subschema.ShortTouristSchema],
     stats: {
         numberOfWineries: {
-                type: Number,
-                default: 0
+            type: Number,
+            default: 0
         }
     }
 }, {
@@ -76,7 +84,7 @@ CountrySchema.options.toObject.transform = function(doc, ret, options) {
  *  @param {Array} wines
  */
 CountrySchema.methods.addWinery = function(cb) {
-        this.stats.numberOfWineries +=1;
+    this.stats.numberOfWineries += 1;
     this.save(function(err) {
         if (err) {
             return cb(CountryError('Winery not added'));
@@ -157,8 +165,7 @@ CountrySchema.methods.removeMerchant = function(merchant, cb) {
  *  @param {Object} region
  */
 CountrySchema.methods.addRegion = function(region, cb) {
-    this.regions.addToSet(Region);
-
+    this.regions.push(region);
     this.save(function(err) {
         if (err) {
             return cb(CountryError('Region not added'));

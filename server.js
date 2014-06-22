@@ -5,6 +5,7 @@ var express = require('express'),
     fs = require('fs'),
     mongoose = require('mongoose'),
     mongooseWhen = require('mongoose-when'),
+    mongooseThen = require('mongoose-then'),
     autoIncrement = require('mongoose-auto-increment');
 
 /**
@@ -26,7 +27,6 @@ fs.readdirSync(modelsPath).forEach(function(file) {
         require(modelsPath + '/' + file);
     }
 });
-
 // Populate empty DB with sample data
 require('./server/config/dummydata');
 

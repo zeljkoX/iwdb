@@ -1,13 +1,18 @@
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema,
+    Schema = mongoose.Schema;
+    WinerySchema = require('./winery.js'),
+    Promise = mongoose.Promise,
+    WineSchema = require('./wine.js'),
     CountrySchema = require('./country.js'),
     Country = mongoose.model('Country'),
+    console.log(mongoose.models);
+    //Winery = mongoose.model('Winery'),
+    Wine = mongoose.model('Wine'),
     subschema = require('./subschemes.js'),
     plugin = require('./plugins.js'),
     autoIncrement = require('mongoose-auto-increment'),
     helper = require('../helperMethods.js'),
     update = require('../update.js')('Add region', function(log) {
-        console.log(log);
         console.log('Region update fired');
     });
 
@@ -26,9 +31,6 @@ var RegionSchema = new Schema({
             required: true
         },
         _id: {
-            type: String
-        },
-        test: {
             type: String
         }
     },
@@ -125,30 +127,24 @@ RegionSchema.pre('save', function(next) {
  */
 update.use(function(doc, log, next) {
     if (doc.isNew) {
-        statsName = doc.published ? 'published' : 'unpublished';
-        var action = new log.getAction('Create new Region');
-
-        var countryPromise = Country.findByID(doc.country._id, function(err, country) {
-            if (err) {
-                action.reject(err);
-                return countryPromise.reject(err);
-            }
+        var action = new log.getAction('Add region to country');
+        var anotherPromise = new Promise();
+        var countryPromise = Country.findById(doc.country._id).exec();
+        countryPromise.then(function(country) {
             country.addRegion({
                 name: doc.name,
                 _id: doc._id
             }, function(err) {
                 if (err) {
-                    action.reject(err);
-                    return countryPromise.reject(err);
+                    console.log(err);
+                    return action.reject(err);
                 }
                 action.resolve();
-                countryPromise.resolve();
+                anotherPromise.fulfill();
             });
-        }).exec();
+        });
 
-
-        countryPromise.addBack(function(err) {
-            console.log('Add region success');
+        anotherPromise.addBack(function(err) {
             log.actions.push(action);
             log.save();
             next();
@@ -161,28 +157,25 @@ update.use(function(doc, log, next) {
 /**
  * On name change
  */
-update.use(function(doc, log, next) {
-    if (doc.isModified('name')) {
-        console.log('name update not fired');
+update.use(function(doc,  log, next) {
+    if (!doc.wasNew && doc.isModCustom('name')) {
+        console.log('name update fired');
+        console.log(doc.modified);
         var action = new log.getAction('Region: change name');
 
-        var countryPromise = Country.findByID(doc.country._id).exec();
-
-        countryPromise.then(function(country) {
-            if (!country) {
-                return new Error('Country not found');
-            }
-            region = country.region.id(doc._id);
-            region.name = doc.name;
-            region.save(function() {
-                if (err) {
-                    action.reject(err);
-                    countryPromise.reject(err);
-                }
-                action.resolve();
-                countryPromise.resolve();
+        var countryPromise = Country.findOne({_id: doc.country._id}).exec()
+            .then(function(country) {
+                region = country.region.id(doc._id);
+                region.name = doc.name;
+                region.save(function() {
+                    if (err) {
+                        action.reject(err);
+                        countryPromise.reject(err);
+                    }
+                    action.resolve();
+                    countryPromise.resolve();
+                });
             });
-        });
 
         var winePromise = Wine.update({
             region: {
@@ -215,9 +208,12 @@ update.use(function(doc, log, next) {
             next(doc);
         });
     } else {
-        next();
+        next(doc);
     }
 });
+
+
+
 
 /***************
  *  PLUGINS
@@ -256,7 +252,12 @@ RegionSchema.plugin(plugin.publish);
 /**
  * Add modified field
  */
-RegionSchema.plugin(plugin.modified);
+//RegionSchema.plugin(plugin.modified);
+
+/**
+ * Update middleware
+ */
+RegionSchema.plugin(plugin.updateMiddleware, update);
 
 
 module.exports = mongoose.model('Region', RegionSchema, 'region');

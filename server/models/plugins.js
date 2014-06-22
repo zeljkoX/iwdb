@@ -564,11 +564,15 @@ exports.modified = function(schema) {
 exports.updateMiddleware = function(schema, update) {
     schema.pre('save', function(next) {
         var doc = this;
-        this.clone = helper.clone(doc);
+        doc.clone = helper.clone(doc);
+        doc.modified = doc.modifiedPaths();
+        doc.wasNew = doc.isNew;
         next();
     });
     schema.post('save', function(doc) {
-        update.run(this.clone);
+        //console.log(doc.modified);
+        //console.log(modifikovano);
+        update.run(doc);
     });
 };
 
